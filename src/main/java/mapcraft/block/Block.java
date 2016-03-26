@@ -42,4 +42,18 @@ public class Block {
     public BlockType getBlockType() {
         return type;
     }
+    
+    public boolean isTranslucent() {
+        if(type.equals(BlockType.Water)) return true;
+        else return false;
+    }
+    
+    /**
+     * Mixture of Active and Translucent
+     * 
+     * @return 
+     */
+    public boolean isBlocking() {
+        return isActive() && !isTranslucent();
+    }
 }

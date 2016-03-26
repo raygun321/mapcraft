@@ -37,7 +37,7 @@
     </dependencies>
 
     <build>
-        <defaultGoal>clean compile package exec:java</defaultGoal>
+        <!--defaultGoal>clean compile package exec:java</defaultGoal-->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

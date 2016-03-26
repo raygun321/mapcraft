@@ -284,65 +284,124 @@ public class Chunk {
                         boolean zNeg = def;
                         boolean zPos = def;
                         
-                        if(x>0) {            
-                            xNeg = blocks[x-1][y][z].isActive();
-                        } else {
-                            Chunk nextChunk = manager.getChunkAtPoint(
-                                    new Point3D(position.getX()-CHUNK_SIZE, position.getY(), position.getZ()));
-                            if(nextChunk != null && nextChunk.isLoaded()) {
-                                xNeg = nextChunk.blocks[CHUNK_SIZE - 1][y][z].isActive();
+                        if(!curBlock.getBlockType().equals(BlockType.Water)) {
+                            if(x>0) {            
+                                xNeg = blocks[x-1][y][z].isBlocking();
+                            } else {
+                                Chunk nextChunk = manager.getChunkAtPoint(
+                                        new Point3D(position.getX()-CHUNK_SIZE, position.getY(), position.getZ()));
+                                if(nextChunk != null && nextChunk.isLoaded()) {
+                                    xNeg = nextChunk.blocks[CHUNK_SIZE - 1][y][z].isBlocking();
+                                }
                             }
-                        }
-                        if(x<CHUNK_SIZE-1) {
-                            xPos = blocks[x+1][y][z].isActive();
-                        } else {
-                            Chunk nextChunk = manager.getChunkAtPoint(
-                                    new Point3D(position.getX()+CHUNK_SIZE, position.getY(), position.getZ()));
-                            if(nextChunk != null && nextChunk.isLoaded()) {
-                                xPos = nextChunk.blocks[0][y][z].isActive();
+                            if(x<CHUNK_SIZE-1) {
+                                xPos = blocks[x+1][y][z].isBlocking();
+                            } else {
+                                Chunk nextChunk = manager.getChunkAtPoint(
+                                        new Point3D(position.getX()+CHUNK_SIZE, position.getY(), position.getZ()));
+                                if(nextChunk != null && nextChunk.isLoaded()) {
+                                    xPos = nextChunk.blocks[0][y][z].isBlocking();
+                                }
                             }
-                        }
 
-                        if(y>0) { 
-                            yNeg = blocks[x][y-1][z].isActive();
-                        } else {
-                            Chunk nextChunk = manager.getChunkAtPoint(
-                                    new Point3D(position.getX(), position.getY()-CHUNK_SIZE, position.getZ()));
-                            if(nextChunk != null && nextChunk.isLoaded()) {
-                                yNeg = nextChunk.blocks[x][CHUNK_SIZE - 1][z].isActive();
+                            if(y>0) { 
+                                yNeg = blocks[x][y-1][z].isBlocking();
+                            } else {
+                                Chunk nextChunk = manager.getChunkAtPoint(
+                                        new Point3D(position.getX(), position.getY()-CHUNK_SIZE, position.getZ()));
+                                if(nextChunk != null && nextChunk.isLoaded()) {
+                                    yNeg = nextChunk.blocks[x][CHUNK_SIZE - 1][z].isBlocking();
+                                }
                             }
-                        }
-                        if(y<CHUNK_SIZE-1) {
-                            yPos = blocks[x][y+1][z].isActive();
-                        } else {
-                            Chunk nextChunk = manager.getChunkAtPoint(
-                                    new Point3D(position.getX(), position.getY()+CHUNK_SIZE, position.getZ()));
-                            if(nextChunk != null && nextChunk.isLoaded()) {
-                                yPos = nextChunk.blocks[x][0][z].isActive();
+                            if(y<CHUNK_SIZE-1) {
+                                yPos = blocks[x][y+1][z].isBlocking();
+                            } else {
+                                Chunk nextChunk = manager.getChunkAtPoint(
+                                        new Point3D(position.getX(), position.getY()+CHUNK_SIZE, position.getZ()));
+                                if(nextChunk != null && nextChunk.isLoaded()) {
+                                    yPos = nextChunk.blocks[x][0][z].isBlocking();
+                                }
                             }
-                        }
 
-                        if(z>0) {
-                            zNeg = blocks[x][y][z-1].isActive();
-                        } else {
-                            Chunk nextChunk = manager.getChunkAtPoint(
-                                    new Point3D(position.getX(), position.getY(), position.getZ()-CHUNK_SIZE));
-                            if(nextChunk != null && nextChunk.isLoaded()) {
-                                zNeg = nextChunk.blocks[x][y][CHUNK_SIZE - 1].isActive();
+                            if(z>0) {
+                                zNeg = blocks[x][y][z-1].isBlocking();
+                            } else {
+                                Chunk nextChunk = manager.getChunkAtPoint(
+                                        new Point3D(position.getX(), position.getY(), position.getZ()-CHUNK_SIZE));
+                                if(nextChunk != null && nextChunk.isLoaded()) {
+                                    zNeg = nextChunk.blocks[x][y][CHUNK_SIZE - 1].isBlocking();
+                                }
                             }
-                        }
-                        if(z<CHUNK_SIZE-1) {
-                            zPos = blocks[x][y][z+1].isActive();
-                        } else {
-                            Chunk nextChunk = manager.getChunkAtPoint(
-                                    new Point3D(position.getX(), position.getY(), position.getZ()+CHUNK_SIZE));
-                            if(nextChunk != null && nextChunk.isLoaded()) {
-                                zPos = nextChunk.blocks[x][y][0].isActive();
+                            if(z<CHUNK_SIZE-1) {
+                                zPos = blocks[x][y][z+1].isBlocking();
+                            } else {
+                                Chunk nextChunk = manager.getChunkAtPoint(
+                                        new Point3D(position.getX(), position.getY(), position.getZ()+CHUNK_SIZE));
+                                if(nextChunk != null && nextChunk.isLoaded()) {
+                                    zPos = nextChunk.blocks[x][y][0].isBlocking();
+                                }
+                            }
+                        } else {    // For water - only check for active
+                            if(x>0) {            
+                                xNeg = blocks[x-1][y][z].isActive();
+                            } else {
+                                Chunk nextChunk = manager.getChunkAtPoint(
+                                        new Point3D(position.getX()-CHUNK_SIZE, position.getY(), position.getZ()));
+                                if(nextChunk != null && nextChunk.isLoaded()) {
+                                    xNeg = nextChunk.blocks[CHUNK_SIZE - 1][y][z].isActive();
+                                }
+                            }
+                            if(x<CHUNK_SIZE-1) {
+                                xPos = blocks[x+1][y][z].isActive();
+                            } else {
+                                Chunk nextChunk = manager.getChunkAtPoint(
+                                        new Point3D(position.getX()+CHUNK_SIZE, position.getY(), position.getZ()));
+                                if(nextChunk != null && nextChunk.isLoaded()) {
+                                    xPos = nextChunk.blocks[0][y][z].isActive();
+                                }
+                            }
+
+                            if(y>0) { 
+                                yNeg = blocks[x][y-1][z].isActive();
+                            } else {
+                                Chunk nextChunk = manager.getChunkAtPoint(
+                                        new Point3D(position.getX(), position.getY()-CHUNK_SIZE, position.getZ()));
+                                if(nextChunk != null && nextChunk.isLoaded()) {
+                                    yNeg = nextChunk.blocks[x][CHUNK_SIZE - 1][z].isActive();
+                                }
+                            }
+                            if(y<CHUNK_SIZE-1) {
+                                yPos = blocks[x][y+1][z].isActive();
+                            } else {
+                                Chunk nextChunk = manager.getChunkAtPoint(
+                                        new Point3D(position.getX(), position.getY()+CHUNK_SIZE, position.getZ()));
+                                if(nextChunk != null && nextChunk.isLoaded()) {
+                                    yPos = nextChunk.blocks[x][0][z].isActive();
+                                }
+                            }
+
+                            if(z>0) {
+                                zNeg = blocks[x][y][z-1].isActive();
+                            } else {
+                                Chunk nextChunk = manager.getChunkAtPoint(
+                                        new Point3D(position.getX(), position.getY(), position.getZ()-CHUNK_SIZE));
+                                if(nextChunk != null && nextChunk.isLoaded()) {
+                                    zNeg = nextChunk.blocks[x][y][CHUNK_SIZE - 1].isActive();
+                                }
+                            }
+                            if(z<CHUNK_SIZE-1) {
+                                zPos = blocks[x][y][z+1].isActive();
+                            } else {
+                                Chunk nextChunk = manager.getChunkAtPoint(
+                                        new Point3D(position.getX(), position.getY(), position.getZ()+CHUNK_SIZE));
+                                if(nextChunk != null && nextChunk.isLoaded()) {
+                                    zPos = nextChunk.blocks[x][y][0].isActive();
+                                }
                             }
                         }
                         
                         if(!(xNeg && xPos && yNeg && yPos && zNeg && zPos)) {
-                            // Only create mesh for active blocks
+                            // Only create mesh for visible active blocks
                             int textureCoord = getTextureCoordFromBlockType(curBlock.getBlockType());
                             faceMap.put(faceCount, curBlock);
                             faceCount += AddCubeToMesh(mesh, x, y, z, textureCoord, xNeg, xPos, yNeg, yPos, zNeg, zPos);
