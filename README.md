@@ -1,2 +1,2 @@
 # mapcraft
-Hex based virtual 3D tabletop sandbox
+Voxel based virtual 3D tabletop 
