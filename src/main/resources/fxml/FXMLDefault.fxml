@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="768.0" prefWidth="1024.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="mapcraft.application.MainController">
+  <children>
+    <FlowPane id="buttonPane" alignment="CENTER_LEFT" hgap="5.0" prefHeight="24.0" prefWidth="-1.0" rowValignment="TOP" vgap="5.0" AnchorPane.leftAnchor="4.0" AnchorPane.rightAnchor="4.0" AnchorPane.topAnchor="0.0">
+      <children>
+        <Button fx:id="drawModeButton" mnemonicParsing="false" onAction="#handleDrawModeButtonAction" prefWidth="48.0" text="Line" />
+        <Button id="contentButton" fx:id="resetButton" mnemonicParsing="false" onAction="#handleResetButtonAction" text="Reset" />
+        <Button id="contentButton" fx:id="activeButton" mnemonicParsing="false" onAction="#handleActiveButtonAction" text="Active" />
+        <Button id="contentButton" fx:id="deactiveButton" mnemonicParsing="false" onAction="#handleDeactiveButtonAction" text="Deactive" />
+        <Button id="contentButton" fx:id="cameraFOVButton" mnemonicParsing="false" onAction="#handleCameraFOVButtonAction" text="Tele" />
+        <Button id="contentButton" fx:id="updateButton" mnemonicParsing="false" onAction="#handleUpdateButtonAction" text="Update" />
+      </children>
+    </FlowPane>
+    <AnchorPane fx:id="drawPane" prefHeight="300.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0" />
+  </children>
+</AnchorPane>
