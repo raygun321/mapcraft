@@ -20,7 +20,7 @@ import mapcraft.map.SimpleNoiseOctave;
  * @author rmalot
  */
 public class SampleChunkLoader implements ChunkLoader {
-    Map<Long,Chunk> chunkMap = new HashMap();
+    Map<Long,Chunk> chunkMap = new HashMap<>();
     
     Material material;
     

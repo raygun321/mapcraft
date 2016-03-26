@@ -51,15 +51,15 @@ public class ChunkManager {
     private World world;
     
     public ChunkManager(Group scene) {
-        chunkLoadList = new ArrayList();
-        chunkSetupList = new ArrayList();
-        chunkRebuildList = new ArrayList();
-        chunkUpdateFlagsList = new ArrayList();
-        chunkUnloadList = new ArrayList();
-        chunkVisibilityList = new ArrayList();
-        chunkTempVisibilityList = new ArrayList();
-        chunkRenderList = new ArrayList();
-        chunkNodeMap = new HashMap();
+        chunkLoadList = new ArrayList<>();
+        chunkSetupList = new ArrayList<>();
+        chunkRebuildList = new ArrayList<>();
+        chunkUpdateFlagsList = new ArrayList<>();
+        chunkUnloadList = new ArrayList<>();
+        chunkVisibilityList = new ArrayList<>();
+        chunkTempVisibilityList = new ArrayList<>();
+        chunkRenderList = new ArrayList<>();
+        chunkNodeMap = new HashMap<>();
         
         loader = new SampleChunkLoader();
         this.scene = scene;
