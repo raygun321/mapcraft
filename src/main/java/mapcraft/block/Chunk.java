@@ -274,7 +274,7 @@ public class Chunk {
             for(int y = 0; y < CHUNK_SIZE; y++) {
                 for(int z = 0; z < CHUNK_SIZE; z++) {
                     Block curBlock = blocks[x][y][z];
-                    if(curBlock.isActive()) {
+                    if(curBlock != null && curBlock.isActive()) {
                         // Check if cube is hidden by other cubes
                         boolean def = false;
                         boolean xNeg = def;

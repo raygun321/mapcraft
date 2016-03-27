@@ -95,7 +95,7 @@ public class MainController {
         });
         
         scene.setOnMouseDragged((event) -> {
-            System.out.println("Mouse Dragged");
+//            System.out.println("Mouse Dragged");
             mouseDragged = true;
             mouseOldX = mousePosX;
             mouseOldY = mousePosY;
@@ -134,7 +134,7 @@ public class MainController {
     
     private void handleKeyboard(Node scene, final Node root) {
         scene.setOnKeyPressed((event) -> {
-            System.out.println("Key Pressed!");
+//            System.out.println("Key Pressed!");
             
             Double modifier = 1.0;
             if (event.isMetaDown()) {
@@ -198,6 +198,12 @@ public class MainController {
                     handleDrawModeToggle();
                     break;
             } // switch
+            
+            System.out.println("Camera Manager TranslateZ: " + cameraManager.getCamera().getTranslateZ());
+            System.out.println("Camera Manager Xform2.t: " + cameraManager.getXform2().t);
+            System.out.println("Camera Manager Xform.ry: " + cameraManager.getXform().ry);
+            System.out.println("Camera Manager Xform.rx: " + cameraManager.getXform().rx);
+
         });
     }  //  handleKeyboard()
 

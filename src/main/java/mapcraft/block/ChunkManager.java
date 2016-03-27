@@ -74,22 +74,38 @@ public class ChunkManager {
     }
         
     public void update(CameraManager cameraManager) {
+        Point3D centerOfView = cameraManager.getRoot().localToScene(Point3D.ZERO);
+        
+        // If camera is underground - move it up
+        Double yVal = world.getValue(centerOfView.getX(), centerOfView.getZ());
+        if(centerOfView.getY() < yVal) {
+            double y = cameraManager.getRoot().getTranslateY();
+            y += yVal - centerOfView.getY() + 2.0;
+        }
+
         Camera camera = cameraManager.getCamera();
         Point3D camPosition = camera.localToScene(Point3D.ZERO);
-        Point3D camView = camera.localToScene(0.0, 0.0, 1.0);
-
+        Point3D camView = camera.localToScene(0.0, 0.0, 1.0);        
+        
         // What is this supposed to do?
         // updateAsyncChunker();
+//        System.out.println("updateLoadList");
         updateLoadList();
+//        System.out.println("updateSetupList");
         updateSetupList();
+//        System.out.println("updateRebuildList");
         updateRebuildList();
         //updateFlagsList();
+  //      System.out.println("updateUnloadList");
         updateUnloadList();
+ //       System.out.println("updateVisibilityList");
         updateVisibilityList(camPosition);
+//        System.out.println("updateFlagsList");
         updateFlagsList();
 	
         if(cameraPosition != camPosition || cameraView != camView)
         {
+//            System.out.println("updateRenderList");
             updateRenderList(cameraManager);
         }
 
@@ -121,6 +137,14 @@ public class ChunkManager {
                 
                 numberOfChunksLoaded++;
                 forceVisibilityUpdate = true;
+                
+                System.out.println("updateLoadList current Position: " + currentChunk.getPosition());
+                
+                for(Chunk nextChunk : getChunksAroundPoint(currentChunk.getPosition(), 1)) {
+                    if(nextChunk != null && nextChunk.isLoaded() && nextChunk.isSetup() ) {
+                        chunkRebuildList.add(nextChunk);
+                    }
+                }
             }
         }
 
@@ -164,41 +188,10 @@ public class ChunkManager {
                 chunkUpdateFlagsList.add(currentChunk);
                 
                 // Also add our neighbours since they might now be surrounded too (If we have neighbours)
-                Chunk tempChunk = getChunk(currentChunk.getPosition().getX()-Chunk.CHUNK_SIZE, 
-                        currentChunk.getPosition().getY(), 
-                        currentChunk.getPosition().getZ());
-                if(tempChunk != null) 
-                    chunkUpdateFlagsList.add(tempChunk);
-                
-                tempChunk = getChunk(currentChunk.getPosition().getX()+Chunk.CHUNK_SIZE, 
-                        currentChunk.getPosition().getY(), 
-                        currentChunk.getPosition().getZ());
-                if(tempChunk != null) 
-                    chunkUpdateFlagsList.add(tempChunk);
-               
-                tempChunk = getChunk(currentChunk.getPosition().getX(), 
-                        currentChunk.getPosition().getY()-Chunk.CHUNK_SIZE, 
-                        currentChunk.getPosition().getZ());
-                if(tempChunk != null) 
-                    chunkUpdateFlagsList.add(tempChunk);
-
-                tempChunk = getChunk(currentChunk.getPosition().getX(), 
-                        currentChunk.getPosition().getY()+Chunk.CHUNK_SIZE, 
-                        currentChunk.getPosition().getZ());
-                if(tempChunk != null) 
-                    chunkUpdateFlagsList.add(tempChunk);
-
-                tempChunk = getChunk(currentChunk.getPosition().getX(), 
-                        currentChunk.getPosition().getY(), 
-                        currentChunk.getPosition().getZ()-Chunk.CHUNK_SIZE);
-                if(tempChunk != null) 
-                    chunkUpdateFlagsList.add(tempChunk);
-
-                tempChunk = getChunk(currentChunk.getPosition().getX(), 
-                        currentChunk.getPosition().getY(), 
-                        currentChunk.getPosition().getZ()+Chunk.CHUNK_SIZE);
-                if(tempChunk != null) 
-                    chunkUpdateFlagsList.add(tempChunk);
+                for(Chunk tempChunk : getChunksAroundPoint(currentChunk.getPosition(), 1)) {
+                    if(tempChunk != null) 
+                        chunkUpdateFlagsList.add(tempChunk);
+                }
                 
                 // Only rebuild a certain number of chunks per frame
                 numberChunksRebuiltThisFrame++;
@@ -225,6 +218,7 @@ public class ChunkManager {
         for(Chunk currentChunk : chunkUpdateFlagsList) {
             currentChunk.setup();
         }
+        chunkUpdateFlagsList.clear();
                 
     }
     
@@ -465,6 +459,30 @@ public class ChunkManager {
     
     public World getWorld() {
         return world;
+    }
+    
+    public List<Chunk> getChunksAroundPoint(Point3D point, int radius) {
+        List<Chunk> chunkList = new ArrayList<>();
+        int chunkRadius = radius * Chunk.CHUNK_SIZE;
+        double sqRadius = chunkRadius * chunkRadius;
+        
+        for(double x = point.getX() - chunkRadius; 
+                x < point.getX() + chunkRadius; 
+                x += 16) {
+            for(double y = point.getY() - chunkRadius; 
+                    y < point.getY() + chunkRadius; 
+                    y += 16) {
+                for(double z = point.getZ() - chunkRadius; 
+                        z < point.getZ() + chunkRadius; 
+                        z += 16) {
+                    double distance = (point.getX() - x) * (point.getX() - x) + (point.getY() - y) * (point.getY() - y) + (point.getZ() - z) * (point.getZ() - z);
+                    if(distance <= sqRadius) {
+                        chunkList.add(getChunkAtPoint(new Point3D(x, y, z)));
+                    }
+                }
+            }
+        }
+        return chunkList;
     }
     
  }
