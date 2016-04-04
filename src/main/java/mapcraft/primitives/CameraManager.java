@@ -27,7 +27,7 @@ public class CameraManager {
     public static final double CAMERA_INITIAL_X_ANGLE = 10.0;
     public static final double CAMERA_INITIAL_Y_ANGLE = 0.0;
     public static final double CAMERA_NEAR_CLIP = 0.1;
-    public static final double CAMERA_FAR_CLIP = 100.0;
+    public static final double CAMERA_FAR_CLIP = 1000.0;
         
     public void init() {
         /* Sphere needs to be one level higher */

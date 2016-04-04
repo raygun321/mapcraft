@@ -5,6 +5,11 @@
  */
 package mapcraft.map;
 
+import javafx.scene.layout.Region;
+import mapcraft.block.Block;
+import mapcraft.block.Chunk;
+import org.mapcraft.api.geo.LoadOption;
+
 /**
  *
  * @author rmalot
@@ -52,5 +57,21 @@ public class World {
     
     public int getWaterLevel() {
         return waterLevel;
+    }
+
+    public Chunk getChunk(int chunkX, int chunkY, int chunkZ, LoadOption loadopt) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public Region getRegionFromChunk(int chunkX, int chunkY, int chunkZ, LoadOption loadopt) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public Block getBlock(double x, double y, double z) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public String getName() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

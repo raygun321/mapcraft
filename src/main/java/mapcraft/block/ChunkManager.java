@@ -484,5 +484,9 @@ public class ChunkManager {
         }
         return chunkList;
     }
+
+    void addChunksToRebuildList(List<Chunk> chunksAroundPoint) {
+        chunkRebuildList.addAll(chunksAroundPoint);
+    }
     
  }

@@ -15,12 +15,14 @@ import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
 import mapcraft.map.World;
+import org.mapcraft.api.math.BitSize;
 
 /**
  *
  * @author rmalot
  */
 public class Chunk {
+    public static final BitSize BLOCKS = new BitSize(4);
     public static final int CHUNK_SIZE=16;
     public static final float RENDER_SIZE=0.5f;
     
@@ -79,30 +81,8 @@ public class Chunk {
     public void update() {
         System.out.println("Chunk updating at " + position);
         rebuildMesh();
-        Chunk nextChunk = manager.getChunkAtPoint(new Point3D(position.getX()+CHUNK_SIZE, position.getY(), position.getZ()));
-        if(nextChunk != null && nextChunk.isLoaded()) {
-            nextChunk.rebuildMesh();
-        }
-        nextChunk = manager.getChunkAtPoint(new Point3D(position.getX()-CHUNK_SIZE, position.getY(), position.getZ()));
-        if(nextChunk != null && nextChunk.isLoaded()) {
-            nextChunk.rebuildMesh();
-        }
-        nextChunk = manager.getChunkAtPoint(new Point3D(position.getX(), position.getY()-CHUNK_SIZE, position.getZ()));
-        if(nextChunk != null && nextChunk.isLoaded()) {
-            nextChunk.rebuildMesh();
-        }
-        nextChunk = manager.getChunkAtPoint(new Point3D(position.getX(), position.getY()+CHUNK_SIZE, position.getZ()));
-        if(nextChunk != null && nextChunk.isLoaded()) {
-            nextChunk.rebuildMesh();
-        }
-        nextChunk = manager.getChunkAtPoint(new Point3D(position.getX(), position.getY(), position.getZ()-CHUNK_SIZE));
-        if(nextChunk != null && nextChunk.isLoaded()) {
-            nextChunk.rebuildMesh();
-        }
-        nextChunk = manager.getChunkAtPoint(new Point3D(position.getX(), position.getY(), position.getZ()+CHUNK_SIZE));
-        if(nextChunk != null && nextChunk.isLoaded()) {
-            nextChunk.rebuildMesh();
-        }
+        
+        manager.addChunksToRebuildList(manager.getChunksAroundPoint(position, 1));
     }
     
     public void render() {

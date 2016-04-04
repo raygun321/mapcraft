@@ -92,6 +92,9 @@ public class MainController {
             mouseDragged = false;
             
             clickedPick = event.getPickResult();
+
+            mousePosX = event.getSceneX();
+            mousePosY = event.getSceneY();
         });
         
         scene.setOnMouseDragged((event) -> {
