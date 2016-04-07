@@ -11,6 +11,7 @@ import java.util.List;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.shape.Rectangle;
+import org.mapcraft.api.block.BlockFace;
 
 /**
  * Represents anything that can be rendered on the client.
@@ -19,6 +20,7 @@ public class RenderPart {
         static final Rectangle RECTANGLE_ZERO = new Rectangle(0,0,0,0);
 	private Rectangle source = RECTANGLE_ZERO;
 	private Rectangle sprite = RECTANGLE_ZERO;
+        private BlockFace facing = BlockFace.TOP;
 	private int zIndex = 0;
 	private Color color = Color.WHITE;
         final private List<Point3D> points = new ArrayList<>();
@@ -27,8 +29,16 @@ public class RenderPart {
         
         private boolean dirty = false;
         
+        public void setFacing(BlockFace face) {
+            facing = face;
+        }
+        
+        public BlockFace getFacing() {
+            return facing;
+        }
+        
 	/**
-	 * Sets the bounds of the source of the render part. This is commonly used for sprite sheets and should be left at zero for simple colored rectangles.
+	 * Sets the bounds of the source texture of the render part. This is commonly used for sprite sheets and should be left at zero for simple colored rectangles.
 	 *
 	 * @param source of part
 	 */
@@ -38,7 +48,7 @@ public class RenderPart {
 	}
 
 	/**
-	 * Returns the bounds of the source of the render part. This is commonly used for sprite sheets and should be left at zero for simple colored rectangles.
+	 * Returns the bounds of the source texture of the render part. This is commonly used for sprite sheets and should be left at zero for simple colored rectangles.
 	 *
 	 * @return source of part
 	 */
@@ -47,7 +57,7 @@ public class RenderPart {
 	}
 
 	/**
-	 * Sets the bounds of the actual sprite of the render material. This is used for specifying the actual visible size of the render part.
+	 * Sets the bounds of the actual sprite size of the render material. This is used for specifying the actual visible size of the render part.
 	 *
 	 * @param sprite of render part
 	 */
@@ -57,7 +67,7 @@ public class RenderPart {
         }
 
 	/**
-	 * Returns the bounds of the actual sprite of the render material. This is used for specifying the actual visible size of the render part.
+	 * Returns the bounds of the actual sprite size of the render material. This is used for specifying the actual visible size of the render part.
 	 *
 	 * @return sprite of render part
 	 */
@@ -143,10 +153,45 @@ public class RenderPart {
         
         private void initPart() {
             points.clear();
-            points.add( new Point3D(sprite.getX(), sprite.getY(), 0) ); // 0 - TL
-            points.add( new Point3D(sprite.getX() + sprite.getWidth(), sprite.getY(), 0) ); // 1 - TR
-            points.add( new Point3D(sprite.getX() + sprite.getWidth(), sprite.getY() - sprite.getHeight(), 0) );    // 2 - BR
-            points.add( new Point3D(sprite.getX(), sprite.getY() - sprite.getHeight(), 0) );    // 3 - BL
+            
+            switch(facing) {
+                case TOP:
+                    points.add( new Point3D(sprite.getX()-0.5f,                     0.5f, sprite.getY() - 0.5f) ); // 0 - TL
+                    points.add( new Point3D(sprite.getX()-0.5f + sprite.getWidth(), 0.5f, sprite.getY() - 0.5f) ); // 1 - TR
+                    points.add( new Point3D(sprite.getX()-0.5f + sprite.getWidth(), 0.5f, sprite.getY() - 0.5f - sprite.getHeight()) );    // 2 - BR
+                    points.add( new Point3D(sprite.getX()-0.5f,                     0.5f, sprite.getY() - 0.5f - sprite.getHeight()) );    // 3 - BL
+                    break;
+                case BOTTOM:
+                    points.add( new Point3D(sprite.getX()-0.5f,                     -0.5f, sprite.getY() - 0.5f) ); // 0 - TL
+                    points.add( new Point3D(sprite.getX()-0.5f + sprite.getWidth(), -0.5f, sprite.getY() - 0.5f) ); // 1 - TR
+                    points.add( new Point3D(sprite.getX()-0.5f + sprite.getWidth(), -0.5f, sprite.getY() - 0.5f - sprite.getHeight()) );    // 2 - BR
+                    points.add( new Point3D(sprite.getX()-0.5f,                     -0.5f, sprite.getY() - 0.5f - sprite.getHeight()) );    // 3 - BL
+                    break;
+                case NORTH:
+                    points.add(new Point3D(-0.5f, sprite.getX()-0.5f,                     sprite.getY() - 0.5f) ); // 0 - TL
+                    points.add(new Point3D(-0.5f, sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f) ); // 1 - TR
+                    points.add(new Point3D(-0.5f, sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f - sprite.getHeight()) );    // 2 - BR
+                    points.add(new Point3D(-0.5f, sprite.getX()-0.5f,                     sprite.getY() - 0.5f - sprite.getHeight()) );    // 3 - BL
+                    break; 
+                case SOUTH:
+                    points.add(new Point3D(0.5f, sprite.getX()-0.5f,                     sprite.getY() - 0.5f) ); // 0 - TL
+                    points.add(new Point3D(0.5f, sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f) ); // 1 - TR
+                    points.add(new Point3D(0.5f, sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f - sprite.getHeight()) );    // 2 - BR
+                    points.add(new Point3D(0.5f, sprite.getX()-0.5f,                     sprite.getY() - 0.5f - sprite.getHeight()) );    // 3 - BL
+                    break; 
+                case EAST:
+                    points.add(new Point3D(sprite.getX()-0.5f,                     sprite.getY() - 0.5f,                      -0.5f ) ); // 0 - TL
+                    points.add(new Point3D(sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f,                      -0.5f ) ); // 1 - TR
+                    points.add(new Point3D(sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f - sprite.getHeight(), -0.5f ) );    // 2 - BR
+                    points.add(new Point3D(sprite.getX()-0.5f,                     sprite.getY() - 0.5f - sprite.getHeight(), -0.5f ) );    // 3 - BL
+                    break; 
+                case WEST:
+                    points.add(new Point3D(sprite.getX()-0.5f,                     sprite.getY() - 0.5f,                      0.5f ) ); // 0 - TL
+                    points.add(new Point3D(sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f,                      0.5f ) ); // 1 - TR
+                    points.add(new Point3D(sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f - sprite.getHeight(), 0.5f ) );    // 2 - BR
+                    points.add(new Point3D(sprite.getX()-0.5f,                     sprite.getY() - 0.5f - sprite.getHeight(), 0.5f ) );    // 3 - BL
+                    break; 
+            }
             
             textureCoordinates.clear();
             textureCoordinates.add( new Point2D(source.getX(), source.getY()) );

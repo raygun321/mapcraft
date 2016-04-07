@@ -11,6 +11,7 @@ import javafx.geometry.Point3D;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Material;
 import javafx.scene.paint.PhongMaterial;
+import org.mapcraft.api.material.BlockMaterialManager;
 
 /**
  *
@@ -47,4 +48,6 @@ public class TextureChunkLoader implements ChunkLoader {
             return thisChunk;
         }
     }
+    
+    
 }

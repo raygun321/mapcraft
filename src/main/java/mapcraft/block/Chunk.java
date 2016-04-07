@@ -9,12 +9,17 @@ import java.util.HashMap;
 import java.util.Map;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.paint.Material;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
 import mapcraft.map.World;
+import org.mapcraft.api.block.BlockFace;
+import org.mapcraft.api.gui.render.ImmutableFace;
+import org.mapcraft.api.gui.render.RenderPart;
+import org.mapcraft.api.material.BlockMaterial;
 import org.mapcraft.api.math.BitSize;
 
 /**
@@ -232,59 +237,59 @@ public class Chunk {
         mesh.getTexCoords().clear();
         mesh.getPoints().clear();
         
-        // Using the same set for all
-        mesh.getTexCoords().addAll(0.0f, 0.0f,     // 0 GrassTop TL
-                                   0.0f, 1.0f/16,  // 1 GrassTop TR - Stone TL
-                                   0.0f, 2.0f/16,  // 2 Stone TR - Dirt TL
-                                   0.0f, 3.0f/16,  // 3 Dirt TR - GrassSide TL
-                                   0.0f, 4.0f/16,  // 4 GrassSide TR
-                                   0.0f, 5.0f/16,  // 5 
-                                   0.0f, 6.0f/16,  // 6 
-                                   0.0f, 7.0f/16,  // 7 
-                                   0.0f, 8.0f/16,  // 8 
-                                   0.0f, 9.0f/16,  // 9 
-                                   0.0f, 10.0f/16, // 10 
-                                   0.0f, 11.0f/16, // 11
-                                   0.0f, 12.0f/16, // 12
-                                   0.0f, 13.0f/16, // 13
-                                   0.0f, 14.0f/16, // 14
-                                   0.0f, 15.0f/16, // 15
-                                   0.0f, 1.0f,     // 16
-                                   1.0f/16, 0.0f,  // 17 GrassTop BL
-                                   1.0f/16, 1.0f/16,  // 18 GrassTop BR - Stone BL
-                                   1.0f/16, 2.0f/16,  // 19 Stone BR - Dirt BL
-                                   1.0f/16, 3.0f/16,  // 20 Dirt BR - GrassSide BL
-                                   1.0f/16, 4.0f/16,  // 21 GrassSide BR
-                                   1.0f/16, 5.0f/16,  // 22
-                                   1.0f/16, 6.0f/16,  // 23
-                                   1.0f/16, 7.0f/16,  // 24
-                                   1.0f/16, 8.0f/16,  // 25
-                                   1.0f/16, 9.0f/16,  // 26
-                                   1.0f/16, 10.0f/16, // 27
-                                   1.0f/16, 11.0f/16, // 28
-                                   1.0f/16, 12.0f/16, // 29
-                                   1.0f/16, 13.0f/16, // 30
-                                   1.0f/16, 14.0f/16, // 31
-                                   1.0f/16, 15.0f/16, // 32
-                                   1.0f/16, 1.0f,     // 33
-                                   2.0f/16, 0.0f,  // 17
-                                   2.0f/16, 1.0f/16,  // 18
-                                   2.0f/16, 2.0f/16,  // 19
-                                   2.0f/16, 3.0f/16,  // 20
-                                   2.0f/16, 4.0f/16,  // 21
-                                   2.0f/16, 5.0f/16,  // 22
-                                   2.0f/16, 6.0f/16,  // 23
-                                   2.0f/16, 7.0f/16,  // 24
-                                   2.0f/16, 8.0f/16,  // 25
-                                   2.0f/16, 9.0f/16,  // 26
-                                   2.0f/16, 10.0f/16, // 27
-                                   2.0f/16, 11.0f/16, // 28
-                                   2.0f/16, 12.0f/16, // 29
-                                   2.0f/16, 13.0f/16, // 30
-                                   2.0f/16, 14.0f/16, // 31
-                                   2.0f/16, 15.0f/16, // 32
-                                   2.0f/16, 1.0f     // 33
-                                   );
+//        // Using the same set for all
+//        mesh.getTexCoords().addAll(0.0f, 0.0f,     // 0 GrassTop TL
+//                                   0.0f, 1.0f/16,  // 1 GrassTop TR - Stone TL
+//                                   0.0f, 2.0f/16,  // 2 Stone TR - Dirt TL
+//                                   0.0f, 3.0f/16,  // 3 Dirt TR - GrassSide TL
+//                                   0.0f, 4.0f/16,  // 4 GrassSide TR
+//                                   0.0f, 5.0f/16,  // 5 
+//                                   0.0f, 6.0f/16,  // 6 
+//                                   0.0f, 7.0f/16,  // 7 
+//                                   0.0f, 8.0f/16,  // 8 
+//                                   0.0f, 9.0f/16,  // 9 
+//                                   0.0f, 10.0f/16, // 10 
+//                                   0.0f, 11.0f/16, // 11
+//                                   0.0f, 12.0f/16, // 12
+//                                   0.0f, 13.0f/16, // 13
+//                                   0.0f, 14.0f/16, // 14
+//                                   0.0f, 15.0f/16, // 15
+//                                   0.0f, 1.0f,     // 16
+//                                   1.0f/16, 0.0f,  // 17 GrassTop BL
+//                                   1.0f/16, 1.0f/16,  // 18 GrassTop BR - Stone BL
+//                                   1.0f/16, 2.0f/16,  // 19 Stone BR - Dirt BL
+//                                   1.0f/16, 3.0f/16,  // 20 Dirt BR - GrassSide BL
+//                                   1.0f/16, 4.0f/16,  // 21 GrassSide BR
+//                                   1.0f/16, 5.0f/16,  // 22
+//                                   1.0f/16, 6.0f/16,  // 23
+//                                   1.0f/16, 7.0f/16,  // 24
+//                                   1.0f/16, 8.0f/16,  // 25
+//                                   1.0f/16, 9.0f/16,  // 26
+//                                   1.0f/16, 10.0f/16, // 27
+//                                   1.0f/16, 11.0f/16, // 28
+//                                   1.0f/16, 12.0f/16, // 29
+//                                   1.0f/16, 13.0f/16, // 30
+//                                   1.0f/16, 14.0f/16, // 31
+//                                   1.0f/16, 15.0f/16, // 32
+//                                   1.0f/16, 1.0f,     // 33
+//                                   2.0f/16, 0.0f,  // 17
+//                                   2.0f/16, 1.0f/16,  // 18
+//                                   2.0f/16, 2.0f/16,  // 19
+//                                   2.0f/16, 3.0f/16,  // 20
+//                                   2.0f/16, 4.0f/16,  // 21
+//                                   2.0f/16, 5.0f/16,  // 22
+//                                   2.0f/16, 6.0f/16,  // 23
+//                                   2.0f/16, 7.0f/16,  // 24
+//                                   2.0f/16, 8.0f/16,  // 25
+//                                   2.0f/16, 9.0f/16,  // 26
+//                                   2.0f/16, 10.0f/16, // 27
+//                                   2.0f/16, 11.0f/16, // 28
+//                                   2.0f/16, 12.0f/16, // 29
+//                                   2.0f/16, 13.0f/16, // 30
+//                                   2.0f/16, 14.0f/16, // 31
+//                                   2.0f/16, 15.0f/16, // 32
+//                                   2.0f/16, 1.0f     // 33
+//                                   );
 
         Integer faceCount = 0;
         for(int x = 0; x < CHUNK_SIZE; x++) {
@@ -419,9 +424,8 @@ public class Chunk {
                         
                         if(!(xNeg && xPos && yNeg && yPos && zNeg && zPos)) {
                             // Only create mesh for visible active blocks
-                            int textureCoord = getTextureCoordFromBlockType(curBlock.getBlockType());
                             faceMap.put(faceCount, curBlock);
-                            faceCount += AddCubeToMesh(mesh, x, y, z, textureCoord, xNeg, xPos, yNeg, yPos, zNeg, zPos);
+                            faceCount += AddCubeToMesh(mesh, x, y, z, curBlock.getBlockType(), xNeg, xPos, yNeg, yPos, zNeg, zPos);
 
                             activeBlockCount++;
                         }
@@ -433,70 +437,42 @@ public class Chunk {
     }
     
     //TODO: Extract logic into a Mesher
-    private int AddCubeToMesh(TriangleMesh mesh, int x, int y, int z, int tc,
+    private int AddCubeToMesh(TriangleMesh mesh, int x, int y, int z, BlockType type,
             boolean xNeg, boolean xPos, boolean yNeg, boolean yPos, boolean zNeg, boolean zPos) {
+        int tc = getTextureCoordFromBlockType(type);
         int numFaces =0;
-        int numPts = mesh.getPoints().size() / mesh.getPointElementSize();
         
-        mesh.getPoints().addAll(x-RENDER_SIZE, y-RENDER_SIZE, z+RENDER_SIZE,    //0 Left,  Top,    Back
-                                x+RENDER_SIZE, y-RENDER_SIZE, z+RENDER_SIZE,    //1 Right, Top,    Back
-                                x+RENDER_SIZE, y+RENDER_SIZE, z+RENDER_SIZE,    //2 Right, Bottom, Back
-                                x-RENDER_SIZE, y+RENDER_SIZE, z+RENDER_SIZE,    //3 Left,  Bottom, Back
-                                x+RENDER_SIZE, y-RENDER_SIZE, z-RENDER_SIZE,    //4 Right, Top,    Front
-                                x-RENDER_SIZE, y-RENDER_SIZE, z-RENDER_SIZE,    //5 Left,  Top,    Front         
-                                x-RENDER_SIZE, y+RENDER_SIZE, z-RENDER_SIZE,    //6 Left,  Bottom, Front
-                                x+RENDER_SIZE, y+RENDER_SIZE, z-RENDER_SIZE);   //7 Right, Bottom, Front
+        boolean[] shouldRenderFace = new boolean[6];
+        shouldRenderFace[0] = !yNeg;
+        shouldRenderFace[1] = !zNeg;
+        shouldRenderFace[2] = !xPos;
+        shouldRenderFace[3] = !zPos;
+        shouldRenderFace[4] = !xNeg;
+        shouldRenderFace[5] = !yPos;
         
-//    
-//      0    1
-//    5    4
-//      
-//      3    2
-//    6    7
+        BlockMaterial mat = manager.getMaterialManager().getMaterialForType(type);
+        for(int i=0; i< 6; i++) {
+            if(shouldRenderFace[i]) {
+                int baseTc = mesh.getTexCoords().size() / mesh.getTexCoordElementSize();
+                int basePts = mesh.getPoints().size() / mesh.getPointElementSize();
+                RenderPart part = mat.getRenderPartForFace(BlockFace.getFaceByInt(i));
+                for(Point2D point : part.getTextureCoordinates()) {
+                    mesh.getTexCoords().addAll((float) point.getX(), (float) point.getY());
+                }
 
-        if(!yNeg) {
-            mesh.getFaces().addAll(0+numPts,tc, 4+numPts,tc, 1+numPts,tc);   // Top
-            mesh.getFaces().addAll(0+numPts,tc, 5+numPts,tc, 4+numPts,tc);
-            numFaces += 2;
+                for(Point3D point : part.getPoints()) {
+                    mesh.getPoints().addAll((float)(x+point.getX()), (float)(y+point.getY()), (float)(z+point.getZ()));
+                }
+                
+                for(ImmutableFace face : part.getFaces()) {
+                    mesh.getFaces().addAll(face.getVertexIndex(0)+basePts, face.getTextureIndex(0)+baseTc, 
+                            face.getVertexIndex(1)+basePts, face.getTextureIndex(1)+baseTc, 
+                            face.getVertexIndex(2)+basePts, face.getTextureIndex(2)+baseTc);
+                    numFaces++;
+                }
+            }
         }
-        if(!zNeg) {
-            mesh.getFaces().addAll(4+numPts,tc, 5+numPts,tc, 6+numPts,tc);   // Front
-            mesh.getFaces().addAll(4+numPts,tc, 6+numPts,tc, 7+numPts,tc);
-            numFaces += 2;
-        }
-        if(!xPos) {
-            mesh.getFaces().addAll(1+numPts,tc, 4+numPts,tc, 7+numPts,tc);   // Right
-            mesh.getFaces().addAll(1+numPts,tc, 7+numPts,tc, 2+numPts,tc);
-            numFaces += 2;
-        }
-        if(!zPos) {
-            mesh.getFaces().addAll(1+numPts,tc, 3+numPts,tc, 0+numPts,tc);   // Back
-            mesh.getFaces().addAll(1+numPts,tc, 2+numPts,tc, 3+numPts,tc);
-            numFaces += 2;
-        }
-        if(!xNeg) {
-            mesh.getFaces().addAll(5+numPts,tc, 0+numPts,tc, 3+numPts,tc);   // Left
-            mesh.getFaces().addAll(5+numPts,tc, 3+numPts,tc, 6+numPts,tc);
-            numFaces += 2;
-        }
-        if(!yPos) {
-            mesh.getFaces().addAll(6+numPts,tc, 3+numPts,tc, 2+numPts,tc);   // Bottom
-            mesh.getFaces().addAll(6+numPts,tc, 2+numPts,tc, 7+numPts,tc);
-            numFaces += 2;
-        }
-        
-//        mesh.getFaces().addAll(0+numPts,tc, 4+numPts,tc, 1+numPts,tc,   // Top
-//                               0+numPts,tc, 5+numPts,tc, 4+numPts,tc,
-//                               4+numPts,tc, 5+numPts,tc, 6+numPts,tc,   // Front
-//                               4+numPts,tc, 6+numPts,tc, 7+numPts,tc,
-//                               1+numPts,tc, 4+numPts,tc, 7+numPts,tc,   // Right
-//                               1+numPts,tc, 7+numPts,tc, 2+numPts,tc,
-//                               1+numPts,tc, 3+numPts,tc, 0+numPts,tc,   // Back
-//                               1+numPts,tc, 2+numPts,tc, 3+numPts,tc,
-//                               5+numPts,tc, 0+numPts,tc, 3+numPts,tc,   // Left
-//                               5+numPts,tc, 3+numPts,tc, 6+numPts,tc,
-//                               6+numPts,tc, 3+numPts,tc, 2+numPts,tc,   // Bottom
-//                               6+numPts,tc, 2+numPts,tc, 7+numPts,tc);
+
         return numFaces;
     }
 

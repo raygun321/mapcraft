@@ -16,6 +16,7 @@ import javafx.scene.Node;
 import javafx.scene.shape.DrawMode;
 import mapcraft.map.World;
 import mapcraft.primitives.CameraManager;
+import org.mapcraft.api.material.BlockMaterialManager;
 
 /**
  *
@@ -40,6 +41,7 @@ public class ChunkManager {
     private final Map<Node, Chunk> chunkNodeMap;      // Map of chunks addressable by their meshView nodes.
    
     private final ChunkLoader loader;
+    private final BlockMaterialManager materialManager;
     private final Group scene;
 
     private Point3D cameraPosition;
@@ -72,6 +74,7 @@ public class ChunkManager {
         drawMode = DrawMode.FILL;
         
         world = new World(new Double(Math.random()*Long.MAX_VALUE).longValue());
+        materialManager = new BlockMaterialManager();
     }
         
     public void update(CameraManager cameraManager) {
@@ -489,5 +492,8 @@ public class ChunkManager {
     void addChunksToRebuildList(List<Chunk> chunksAroundPoint) {
         chunkRebuildList.addAll(chunksAroundPoint);
     }
-    
+
+    public BlockMaterialManager getMaterialManager() {
+        return materialManager;
+    }
  }
