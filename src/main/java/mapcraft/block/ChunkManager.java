@@ -61,7 +61,8 @@ public class ChunkManager {
         chunkRenderList = new ArrayList<>();
         chunkNodeMap = new HashMap<>();
         
-        loader = new SampleChunkLoader();
+//        loader = new SampleChunkLoader();
+        loader = new TextureChunkLoader();
         this.scene = scene;
         
         forceVisibilityUpdate = false;

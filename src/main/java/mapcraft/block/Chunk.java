@@ -101,6 +101,8 @@ public class Chunk {
         isSetup = true;
     }
 
+    //TODO: Need to move this to a world generator or the chunk loader.
+    //      Chunk shouldn't know how to load itself
     public void load() {
         System.out.println("Chunk load at " + position);
         World world = manager.getWorld();
@@ -182,6 +184,7 @@ public class Chunk {
         }
     }
     
+    //TODO: Needs to move to material
     private int getTextureCoordFromBlockType(BlockType type) {
         switch(type) {
             case Grass:
@@ -201,26 +204,7 @@ public class Chunk {
         return 1;
     }
     
-    private BlockType getRandomBlockType() {
-        int type = new Double( Math.random() * 6 ).intValue();
-        switch(type) {
-            case 2:
-                return BlockType.Grass;
-            case 1:
-                return BlockType.Dirt;
-            case 5:
-                return BlockType.Water;
-            case 0:
-                return BlockType.Stone;
-            case 3:
-                return BlockType.Wood;
-            case 4:
-                return BlockType.Sand;
-        }
-        
-        return BlockType.Default;
-    }
-    
+    //TODO: Needs to move to world generator
     private BlockType getBlockTypeBasedOnHeight(double height) {
         BlockType result = BlockType.Stone;
 
@@ -233,7 +217,14 @@ public class Chunk {
 
         return result;
     }
-        
+    
+    /*TODO: Extract logic into a Mesher
+        RenderPart is a rectangle.
+        Blocks have a BlockMaterial
+        BlockMaterials have RenderParts.
+        Mesher takes BlockMaterials and composes the Mesh
+       
+     */   
     public void rebuildMesh() {
         // Create the mesh...
         TriangleMesh mesh = (TriangleMesh) meshView.getMesh();
@@ -242,11 +233,57 @@ public class Chunk {
         mesh.getPoints().clear();
         
         // Using the same set for all
-        mesh.getTexCoords().addAll(0.1f, 0.5f, // 0 red
-                                   0.3f, 0.5f, // 1 green
-                                   0.5f, 0.5f, // 2 blue
-                                   0.7f, 0.5f, // 3 yellow
-                                   0.9f, 0.5f  // 4 orange
+        mesh.getTexCoords().addAll(0.0f, 0.0f,     // 0 GrassTop TL
+                                   0.0f, 1.0f/16,  // 1 GrassTop TR - Stone TL
+                                   0.0f, 2.0f/16,  // 2 Stone TR - Dirt TL
+                                   0.0f, 3.0f/16,  // 3 Dirt TR - GrassSide TL
+                                   0.0f, 4.0f/16,  // 4 GrassSide TR
+                                   0.0f, 5.0f/16,  // 5 
+                                   0.0f, 6.0f/16,  // 6 
+                                   0.0f, 7.0f/16,  // 7 
+                                   0.0f, 8.0f/16,  // 8 
+                                   0.0f, 9.0f/16,  // 9 
+                                   0.0f, 10.0f/16, // 10 
+                                   0.0f, 11.0f/16, // 11
+                                   0.0f, 12.0f/16, // 12
+                                   0.0f, 13.0f/16, // 13
+                                   0.0f, 14.0f/16, // 14
+                                   0.0f, 15.0f/16, // 15
+                                   0.0f, 1.0f,     // 16
+                                   1.0f/16, 0.0f,  // 17 GrassTop BL
+                                   1.0f/16, 1.0f/16,  // 18 GrassTop BR - Stone BL
+                                   1.0f/16, 2.0f/16,  // 19 Stone BR - Dirt BL
+                                   1.0f/16, 3.0f/16,  // 20 Dirt BR - GrassSide BL
+                                   1.0f/16, 4.0f/16,  // 21 GrassSide BR
+                                   1.0f/16, 5.0f/16,  // 22
+                                   1.0f/16, 6.0f/16,  // 23
+                                   1.0f/16, 7.0f/16,  // 24
+                                   1.0f/16, 8.0f/16,  // 25
+                                   1.0f/16, 9.0f/16,  // 26
+                                   1.0f/16, 10.0f/16, // 27
+                                   1.0f/16, 11.0f/16, // 28
+                                   1.0f/16, 12.0f/16, // 29
+                                   1.0f/16, 13.0f/16, // 30
+                                   1.0f/16, 14.0f/16, // 31
+                                   1.0f/16, 15.0f/16, // 32
+                                   1.0f/16, 1.0f,     // 33
+                                   2.0f/16, 0.0f,  // 17
+                                   2.0f/16, 1.0f/16,  // 18
+                                   2.0f/16, 2.0f/16,  // 19
+                                   2.0f/16, 3.0f/16,  // 20
+                                   2.0f/16, 4.0f/16,  // 21
+                                   2.0f/16, 5.0f/16,  // 22
+                                   2.0f/16, 6.0f/16,  // 23
+                                   2.0f/16, 7.0f/16,  // 24
+                                   2.0f/16, 8.0f/16,  // 25
+                                   2.0f/16, 9.0f/16,  // 26
+                                   2.0f/16, 10.0f/16, // 27
+                                   2.0f/16, 11.0f/16, // 28
+                                   2.0f/16, 12.0f/16, // 29
+                                   2.0f/16, 13.0f/16, // 30
+                                   2.0f/16, 14.0f/16, // 31
+                                   2.0f/16, 15.0f/16, // 32
+                                   2.0f/16, 1.0f     // 33
                                    );
 
         Integer faceCount = 0;
@@ -395,6 +432,7 @@ public class Chunk {
         shouldRender = activeBlockCount > 0;
     }
     
+    //TODO: Extract logic into a Mesher
     private int AddCubeToMesh(TriangleMesh mesh, int x, int y, int z, int tc,
             boolean xNeg, boolean xPos, boolean yNeg, boolean yPos, boolean zNeg, boolean zPos) {
         int numFaces =0;

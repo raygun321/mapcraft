@@ -39,7 +39,7 @@ public class World {
         this.scale = scale;
         this.octaves = octaves;
         
-        heightRange = 32;
+        heightRange = 64;
         waterLevel = -2;
     }
     
