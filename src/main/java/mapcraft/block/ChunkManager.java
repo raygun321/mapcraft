@@ -74,6 +74,7 @@ public class ChunkManager {
         drawMode = DrawMode.FILL;
         
         world = new World(new Double(Math.random()*Long.MAX_VALUE).longValue());
+//        world = new World(1000000L);
         materialManager = new BlockMaterialManager();
     }
         

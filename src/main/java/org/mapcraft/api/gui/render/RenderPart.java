@@ -143,7 +143,11 @@ public class RenderPart {
 	public List<ImmutableFace> getFaces() {
 		if(dirty) initPart();
                 
-                return faces;
+                //TOP - ?, BOTTOM - ?, NORTH, SOUTH, East, West
+//                if(facing == BlockFace.SOUTH || facing == BlockFace.EAST || facing == BlockFace.WEST || facing == BlockFace.TOP || facing == BlockFace.BOTTOM )
+                    return faces;
+  //              else
+    //                return new ArrayList<ImmutableFace>();
 	}
 
 //	@Override
@@ -153,51 +157,70 @@ public class RenderPart {
         
         private void initPart() {
             points.clear();
-            
+            textureCoordinates.clear();
+        
             switch(facing) {
                 case TOP:
                     points.add( new Point3D(sprite.getX()-0.5f,                     0.5f, sprite.getY() - 0.5f) ); // 0 - TL
                     points.add( new Point3D(sprite.getX()-0.5f + sprite.getWidth(), 0.5f, sprite.getY() - 0.5f) ); // 1 - TR
                     points.add( new Point3D(sprite.getX()-0.5f + sprite.getWidth(), 0.5f, sprite.getY() - 0.5f - sprite.getHeight()) );    // 2 - BR
                     points.add( new Point3D(sprite.getX()-0.5f,                     0.5f, sprite.getY() - 0.5f - sprite.getHeight()) );    // 3 - BL
+                    textureCoordinates.add( new Point2D(source.getX(), source.getY()) );
+                    textureCoordinates.add( new Point2D(source.getX() + source.getWidth(), source.getY()) );
+                    textureCoordinates.add( new Point2D(source.getX() + source.getWidth(), source.getY() + source.getHeight()) );
+                    textureCoordinates.add( new Point2D(source.getX(), source.getY() + source.getHeight()) );
                     break;
                 case BOTTOM:
-                    points.add( new Point3D(sprite.getX()-0.5f,                     -0.5f, sprite.getY() - 0.5f) ); // 0 - TL
-                    points.add( new Point3D(sprite.getX()-0.5f + sprite.getWidth(), -0.5f, sprite.getY() - 0.5f) ); // 1 - TR
-                    points.add( new Point3D(sprite.getX()-0.5f + sprite.getWidth(), -0.5f, sprite.getY() - 0.5f - sprite.getHeight()) );    // 2 - BR
                     points.add( new Point3D(sprite.getX()-0.5f,                     -0.5f, sprite.getY() - 0.5f - sprite.getHeight()) );    // 3 - BL
+                    points.add( new Point3D(sprite.getX()-0.5f + sprite.getWidth(), -0.5f, sprite.getY() - 0.5f - sprite.getHeight()) );    // 2 - BR
+                    points.add( new Point3D(sprite.getX()-0.5f + sprite.getWidth(), -0.5f, sprite.getY() - 0.5f) ); // 1 - TR
+                    points.add( new Point3D(sprite.getX()-0.5f,                     -0.5f, sprite.getY() - 0.5f) ); // 0 - TL
+                    textureCoordinates.add( new Point2D(source.getX(), source.getY()) );
+                    textureCoordinates.add( new Point2D(source.getX() + source.getWidth(), source.getY()) );
+                    textureCoordinates.add( new Point2D(source.getX() + source.getWidth(), source.getY() + source.getHeight()) );
+                    textureCoordinates.add( new Point2D(source.getX(), source.getY() + source.getHeight()) );
                     break;
                 case NORTH:
                     points.add(new Point3D(-0.5f, sprite.getX()-0.5f,                     sprite.getY() - 0.5f) ); // 0 - TL
                     points.add(new Point3D(-0.5f, sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f) ); // 1 - TR
                     points.add(new Point3D(-0.5f, sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f - sprite.getHeight()) );    // 2 - BR
                     points.add(new Point3D(-0.5f, sprite.getX()-0.5f,                     sprite.getY() - 0.5f - sprite.getHeight()) );    // 3 - BL
+                    textureCoordinates.add( new Point2D(source.getX(), source.getY() + source.getHeight()) );
+                    textureCoordinates.add( new Point2D(source.getX(), source.getY()) );
+                    textureCoordinates.add( new Point2D(source.getX() + source.getWidth(), source.getY()) );
+                    textureCoordinates.add( new Point2D(source.getX() + source.getWidth(), source.getY() + source.getHeight()) );
                     break; 
                 case SOUTH:
-                    points.add(new Point3D(0.5f, sprite.getX()-0.5f,                     sprite.getY() - 0.5f) ); // 0 - TL
-                    points.add(new Point3D(0.5f, sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f) ); // 1 - TR
-                    points.add(new Point3D(0.5f, sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f - sprite.getHeight()) );    // 2 - BR
                     points.add(new Point3D(0.5f, sprite.getX()-0.5f,                     sprite.getY() - 0.5f - sprite.getHeight()) );    // 3 - BL
+                    points.add(new Point3D(0.5f, sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f - sprite.getHeight()) );    // 2 - BR
+                    points.add(new Point3D(0.5f, sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f) ); // 1 - TR
+                    points.add(new Point3D(0.5f, sprite.getX()-0.5f,                     sprite.getY() - 0.5f) ); // 0 - TL
+                    textureCoordinates.add( new Point2D(source.getX(), source.getY() + source.getHeight()) );
+                    textureCoordinates.add( new Point2D(source.getX(), source.getY()) );
+                    textureCoordinates.add( new Point2D(source.getX() + source.getWidth(), source.getY()) );
+                    textureCoordinates.add( new Point2D(source.getX() + source.getWidth(), source.getY() + source.getHeight()) );
                     break; 
                 case EAST:
-                    points.add(new Point3D(sprite.getX()-0.5f,                     sprite.getY() - 0.5f,                      -0.5f ) ); // 0 - TL
-                    points.add(new Point3D(sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f,                      -0.5f ) ); // 1 - TR
-                    points.add(new Point3D(sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f - sprite.getHeight(), -0.5f ) );    // 2 - BR
-                    points.add(new Point3D(sprite.getX()-0.5f,                     sprite.getY() - 0.5f - sprite.getHeight(), -0.5f ) );    // 3 - BL
+                    points.add(new Point3D(sprite.getX() - 0.5f,                     sprite.getY() + 0.5f,                      -1.5f ) ); // 0 - TL
+                    points.add(new Point3D(sprite.getX() - 0.5f + sprite.getWidth(), sprite.getY() + 0.5f,                      -1.5f ) ); // 1 - TR
+                    points.add(new Point3D(sprite.getX() - 0.5f + sprite.getWidth(), sprite.getY() + 0.5f - sprite.getHeight(), -1.5f ) );    // 2 - BR
+                    points.add(new Point3D(sprite.getX() - 0.5f,                     sprite.getY() + 0.5f - sprite.getHeight(), -1.5f ) );    // 3 - BL
+                    textureCoordinates.add( new Point2D(source.getX(), source.getY()) );
+                    textureCoordinates.add( new Point2D(source.getX() + source.getWidth(), source.getY()) );
+                    textureCoordinates.add( new Point2D(source.getX() + source.getWidth(), source.getY() + source.getHeight()) );
+                    textureCoordinates.add( new Point2D(source.getX(), source.getY() + source.getHeight()) );
                     break; 
                 case WEST:
-                    points.add(new Point3D(sprite.getX()-0.5f,                     sprite.getY() - 0.5f,                      0.5f ) ); // 0 - TL
-                    points.add(new Point3D(sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f,                      0.5f ) ); // 1 - TR
-                    points.add(new Point3D(sprite.getX()-0.5f + sprite.getWidth(), sprite.getY() - 0.5f - sprite.getHeight(), 0.5f ) );    // 2 - BR
-                    points.add(new Point3D(sprite.getX()-0.5f,                     sprite.getY() - 0.5f - sprite.getHeight(), 0.5f ) );    // 3 - BL
+                    points.add(new Point3D(sprite.getX() - 0.5f,                     sprite.getY() + 0.5f - sprite.getHeight(), -0.5f ) );    // 3 - BL
+                    points.add(new Point3D(sprite.getX() - 0.5f + sprite.getWidth(), sprite.getY() + 0.5f - sprite.getHeight(), -0.5f ) );    // 2 - BR
+                    points.add(new Point3D(sprite.getX() - 0.5f + sprite.getWidth(), sprite.getY() + 0.5f,                      -0.5f ) ); // 1 - TR
+                    points.add(new Point3D(sprite.getX() - 0.5f,                     sprite.getY() + 0.5f,                      -0.5f ) ); // 0 - TL
+                    textureCoordinates.add( new Point2D(source.getX() + source.getWidth(), source.getY() + source.getHeight()) );
+                    textureCoordinates.add( new Point2D(source.getX(), source.getY() + source.getHeight()) );
+                    textureCoordinates.add( new Point2D(source.getX(), source.getY()) );
+                    textureCoordinates.add( new Point2D(source.getX() + source.getWidth(), source.getY()) );
                     break; 
-            }
-            
-            textureCoordinates.clear();
-            textureCoordinates.add( new Point2D(source.getX(), source.getY()) );
-            textureCoordinates.add( new Point2D(source.getX() + source.getWidth(), source.getY()) );
-            textureCoordinates.add( new Point2D(source.getX() + source.getWidth(), source.getY() + source.getHeight()) );
-            textureCoordinates.add( new Point2D(source.getX(), source.getY() + source.getHeight()) );
+            }  
             
             faces.clear();
             faces.add(new ImmutableFace(0,0, 1,1, 2,2));

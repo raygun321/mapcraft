@@ -443,13 +443,13 @@ public class Chunk {
         int numFaces =0;
         
         boolean[] shouldRenderFace = new boolean[6];
-        shouldRenderFace[0] = !yNeg;
-        shouldRenderFace[1] = !zNeg;
-        shouldRenderFace[2] = !xPos;
-        shouldRenderFace[3] = !zPos;
-        shouldRenderFace[4] = !xNeg;
-        shouldRenderFace[5] = !yPos;
-        
+        shouldRenderFace[0] = !yPos;
+        shouldRenderFace[1] = !xNeg;
+        shouldRenderFace[2] = !zNeg;
+        shouldRenderFace[3] = !xPos;
+        shouldRenderFace[4] = !zPos;
+        shouldRenderFace[5] = !yNeg;
+    
         BlockMaterial mat = manager.getMaterialManager().getMaterialForType(type);
         for(int i=0; i< 6; i++) {
             if(shouldRenderFace[i]) {
