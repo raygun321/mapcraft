@@ -20,7 +20,7 @@ public class BlockMaterialManager {
         materialMap.put(BlockType.Default, new SolidBlock("Default", 1.0/16.0, 1.0/16.0));
         materialMap.put(BlockType.Grass, new GrassBlock());
         materialMap.put(BlockType.Dirt, new SolidBlock("Dirt", 2.0/16.0, 0.0));
-        materialMap.put(BlockType.Water, new SolidBlock("Water", 12.0/16.0, 13.0/16.0));
+        materialMap.put(BlockType.Water, new SolidBlock("Water", 13.0/16.0, 12.0/16.0));
         materialMap.put(BlockType.Stone, new SolidBlock("Stone", 1.0/16.0, 0.0));
         materialMap.put(BlockType.Wood, new SolidBlock("Wood", 4.0/16.0, 1.0/16.0));
         materialMap.put(BlockType.Sand, new SolidBlock("Sand", 2.0/16.0, 1.0/16.0));
