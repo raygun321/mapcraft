@@ -8,6 +8,7 @@ package mapcraft.application;
 import javafx.animation.AnimationTimer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.SceneAntialiasing;
@@ -109,29 +110,19 @@ public class MainController {
 
             double modifier = 1.0;
 
-            if (event.isControlDown()) {
-                modifier = CONTROL_MULTIPLIER;
-            } 
-            if (event.isShiftDown()) {
-                modifier = SHIFT_MULTIPLIER;
-            }     
             if (event.isPrimaryButtonDown()) {
                 cameraManager.getXform().ry.setAngle(cameraManager.getXform().ry.getAngle() -
                    mouseDeltaX*modifierFactor*modifier*ROTATION_SPEED);
-                cameraManager.getXform().rx.setAngle(cameraManager.getXform().rx.getAngle() +
-                   mouseDeltaY*modifierFactor*modifier*ROTATION_SPEED);
+                
+                //Constrain X rotation to be upright.
+                double newValue = cameraManager.getXform().rx.getAngle() +
+                   mouseDeltaY*modifierFactor*modifier*ROTATION_SPEED;
+                if(newValue > 90.0) newValue = 90.0;
+                else if(newValue < -90.0) newValue = -90.0;
+                cameraManager.getXform().rx.setAngle(newValue);
+                
             }
-            else if (event.isSecondaryButtonDown()) {
-                double z = cameraManager.getCamera().getTranslateZ();
-                double newZ = z + mouseDeltaX*MOUSE_SPEED*modifier;
-                cameraManager.getCamera().setTranslateZ(newZ);
-            }
-            else if (event.isMiddleButtonDown()) {
-               cameraManager.getXform2().t.setX(cameraManager.getXform2().t.getX() + 
-                  mouseDeltaX*MOUSE_SPEED*modifier*TRACK_SPEED);  // -
-               cameraManager.getXform2().t.setY(cameraManager.getXform2().t.getY() + 
-                  mouseDeltaY*MOUSE_SPEED*modifier*TRACK_SPEED);  // -
-            }
+            
         }); // setOnMouseDragged
     }
     
@@ -147,63 +138,68 @@ public class MainController {
                 modifier = 10.0;
             }
             
+            Point3D result;
             switch (event.getCode()) {
-                case UP:
-                    if(event.isShiftDown()) {
-                        cameraManager.getXform2().t.setY(cameraManager.getXform2().t.getY() - 
-                            modifierFactor*modifier*TRACK_SPEED);
-                    } else {
-                        cameraManager.getXform().rx.setAngle(cameraManager.getXform().rx.getAngle() - 
-                                modifierFactor*modifier*ROTATION_SPEED );
-                    }
+                case D:
+                    // Straffe Right to view. 
+                    result = cameraManager.getXform().rx.transform(new Point3D(modifierFactor*modifier*TRACK_SPEED,0.0,0.0));
+                    result = cameraManager.getXform().ry.transform(result);
+                    result = cameraManager.getXform().rz.transform(result);
+                    
+                    cameraManager.getXform().t.setX(cameraManager.getXform().t.getX() + result.getX());
+                    cameraManager.getXform().t.setY(cameraManager.getXform().t.getY() + result.getY());
+                    cameraManager.getXform().t.setZ(cameraManager.getXform().t.getZ() + result.getZ());
+                    
+                    break;
+                case W:
+                    // Move the camera forward in line to the view.
+                    result = cameraManager.getXform().rx.transform(new Point3D(0.0,0.0,modifierFactor*modifier*TRACK_SPEED));
+                    result = cameraManager.getXform().ry.transform(result);
+                    result = cameraManager.getXform().rz.transform(result);
+                    
+                    cameraManager.getXform().t.setX(cameraManager.getXform().t.getX() + result.getX());
+                    cameraManager.getXform().t.setY(cameraManager.getXform().t.getY() + result.getY());
+                    cameraManager.getXform().t.setZ(cameraManager.getXform().t.getZ() + result.getZ());
+                    break;
+                case A:
+                    // Straffe Left to view.
+                    result = cameraManager.getXform().rx.transform(new Point3D(modifierFactor*modifier*TRACK_SPEED,0.0,0.0));
+                    result = cameraManager.getXform().ry.transform(result);
+                    result = cameraManager.getXform().rz.transform(result);
+                    
+                    cameraManager.getXform().t.setX(cameraManager.getXform().t.getX() - result.getX());
+                    cameraManager.getXform().t.setY(cameraManager.getXform().t.getY() - result.getY());
+                    cameraManager.getXform().t.setZ(cameraManager.getXform().t.getZ() - result.getZ());
+
+                    break;
+                case S:
+                    // Move the camera backward in line to the view.
+                     result = cameraManager.getXform().rx.transform(new Point3D(0.0,0.0,modifierFactor*modifier*TRACK_SPEED));
+                    result = cameraManager.getXform().ry.transform(result);
+                    result = cameraManager.getXform().rz.transform(result);
+                    
+                    cameraManager.getXform().t.setX(cameraManager.getXform().t.getX() - result.getX());
+                    cameraManager.getXform().t.setY(cameraManager.getXform().t.getY() - result.getY());
+                    cameraManager.getXform().t.setZ(cameraManager.getXform().t.getZ() - result.getZ());
                     break;
                 case DOWN:
-                    if(event.isShiftDown()) {
-                        cameraManager.getXform2().t.setY(cameraManager.getXform2().t.getY() + 
-                            modifierFactor*modifier*TRACK_SPEED);
-                    } else {
-                        cameraManager.getXform().rx.setAngle(cameraManager.getXform().rx.getAngle() + 
-                                modifierFactor*modifier*ROTATION_SPEED );
-                    }
+                    // Move the camera down.
+                    cameraManager.getXform().t.setY(cameraManager.getXform().t.getY() - 
+                        modifierFactor*modifier*TRACK_SPEED);
                     break;
-                case LEFT:
-                    if(event.isShiftDown()) {
-                        cameraManager.getXform2().t.setX(cameraManager.getXform2().t.getX() - 
-                            modifierFactor*modifier*TRACK_SPEED);
-                    } else {
-                        cameraManager.getXform().ry.setAngle(cameraManager.getXform().ry.getAngle() - 
-                                modifierFactor*modifier*ROTATION_SPEED );
-                    }
+                case UP:
+                    // Move the camera up.
+                    cameraManager.getXform().t.setY(cameraManager.getXform().t.getY() + 
+                        modifierFactor*modifier*TRACK_SPEED);
                     break;
-                case RIGHT:
-                    if(event.isShiftDown()) {
-                        cameraManager.getXform2().t.setX(cameraManager.getXform2().t.getX() +
-                            modifierFactor*modifier*TRACK_SPEED);
-                    } else {
-                        cameraManager.getXform().ry.setAngle(cameraManager.getXform().ry.getAngle() +
-                                modifierFactor*modifier*ROTATION_SPEED );
-                    }
-                    break;
-                case SPACE: // Reset Angle
+                case Z: // Reset Angle
                     cameraManager.reset();
-                    break;
-                case COMMA:
-                    double z = cameraManager.getCamera().getTranslateZ();
-                    double newZ = z + modifierFactor*modifier;
-                    cameraManager.getCamera().setTranslateZ(newZ);
-                    break;
-                case PERIOD:
-                    z = cameraManager.getCamera().getTranslateZ();
-                    newZ = z - modifierFactor*modifier;
-                    cameraManager.getCamera().setTranslateZ(newZ);
                     break;
                 case L:
                     handleDrawModeToggle();
                     break;
             } // switch
             
-            System.out.println("Camera Manager TranslateZ: " + cameraManager.getCamera().getTranslateZ());
-            System.out.println("Camera Manager Xform2.t: " + cameraManager.getXform2().t);
             System.out.println("Camera Manager Xform.ry: " + cameraManager.getXform().ry);
             System.out.println("Camera Manager Xform.rx: " + cameraManager.getXform().rx);
 
@@ -213,10 +209,7 @@ public class MainController {
     @FXML
     private void handleResetButtonAction(ActionEvent event) {
         System.out.println("Clicked ResetButton!");
-        cameraManager.getXform2().t.setX(0.0);
-        cameraManager.getXform2().t.setY(0.0);
-        cameraManager.getXform().ry.setAngle(CameraManager.CAMERA_INITIAL_Y_ANGLE);
-        cameraManager.getXform().rx.setAngle(CameraManager.CAMERA_INITIAL_X_ANGLE);
+        cameraManager.reset();
     }
     
     @FXML

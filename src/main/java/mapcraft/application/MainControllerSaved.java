@@ -131,80 +131,80 @@ public class MainControllerSaved {
         });
     }
     
-    private void handleKeyboard(Node scene, final Node root) {
-        scene.setOnKeyPressed((event) -> {
-            System.out.println("Key Pressed!");
-            
-            Double modifier = 1.0;
-            if (event.isMetaDown()) {
-                modifier = 0.1;
-            }
-            if (event.isAltDown()) {
-                modifier = 10.0;
-            }
-            
-            switch (event.getCode()) {
-                case UP:
-                    if(event.isShiftDown()) {
-                        cameraManager.getXform2().t.setY(cameraManager.getXform2().t.getY() - 
-                            modifierFactor*modifier*TRACK_SPEED);
-                    } else {
-                        cameraManager.getXform().rx.setAngle(cameraManager.getXform().rx.getAngle() - 
-                                modifierFactor*modifier*ROTATION_SPEED );
-                    }
-                    break;
-                case DOWN:
-                    if(event.isShiftDown()) {
-                        cameraManager.getXform2().t.setY(cameraManager.getXform2().t.getY() + 
-                            modifierFactor*modifier*TRACK_SPEED);
-                    } else {
-                        cameraManager.getXform().rx.setAngle(cameraManager.getXform().rx.getAngle() + 
-                                modifierFactor*modifier*ROTATION_SPEED );
-                    }
-                    break;
-                case LEFT:
-                    if(event.isShiftDown()) {
-                        cameraManager.getXform2().t.setX(cameraManager.getXform2().t.getX() - 
-                            modifierFactor*modifier*TRACK_SPEED);
-                    } else {
-                        cameraManager.getXform().ry.setAngle(cameraManager.getXform().ry.getAngle() - 
-                                modifierFactor*modifier*ROTATION_SPEED );
-                    }
-                    break;
-                case RIGHT:
-                    if(event.isShiftDown()) {
-                        cameraManager.getXform2().t.setX(cameraManager.getXform2().t.getX() +
-                            modifierFactor*modifier*TRACK_SPEED);
-                    } else {
-                        cameraManager.getXform().ry.setAngle(cameraManager.getXform().ry.getAngle() +
-                                modifierFactor*modifier*ROTATION_SPEED );
-                    }
-                    break;
-                case SPACE: // Reset Angle
-                    cameraManager.reset();
-                    break;
-                case COMMA:
-                    double z = cameraManager.getCamera().getTranslateZ();
-                    double newZ = z + modifierFactor*modifier;
-                    cameraManager.getCamera().setTranslateZ(newZ);
-                    break;
-                case PERIOD:
-                    z = cameraManager.getCamera().getTranslateZ();
-                    newZ = z - modifierFactor*modifier;
-                    cameraManager.getCamera().setTranslateZ(newZ);
-                    break;
-                case L:
-                    handleDrawModeToggle();
-                    break;
-            } // switch
-        });
-    }  //  handleKeyboard()
+//    private void handleKeyboard(Node scene, final Node root) {
+//        scene.setOnKeyPressed((event) -> {
+//            System.out.println("Key Pressed!");
+//            
+//            Double modifier = 1.0;
+//            if (event.isMetaDown()) {
+//                modifier = 0.1;
+//            }
+//            if (event.isAltDown()) {
+//                modifier = 10.0;
+//            }
+//            
+//            switch (event.getCode()) {
+//                case UP:
+//                    if(event.isShiftDown()) {
+//                        cameraManager.getXform2().t.setY(cameraManager.getXform2().t.getY() - 
+//                            modifierFactor*modifier*TRACK_SPEED);
+//                    } else {
+//                        cameraManager.getXform().rx.setAngle(cameraManager.getXform().rx.getAngle() - 
+//                                modifierFactor*modifier*ROTATION_SPEED );
+//                    }
+//                    break;
+//                case DOWN:
+//                    if(event.isShiftDown()) {
+//                        cameraManager.getXform2().t.setY(cameraManager.getXform2().t.getY() + 
+//                            modifierFactor*modifier*TRACK_SPEED);
+//                    } else {
+//                        cameraManager.getXform().rx.setAngle(cameraManager.getXform().rx.getAngle() + 
+//                                modifierFactor*modifier*ROTATION_SPEED );
+//                    }
+//                    break;
+//                case LEFT:
+//                    if(event.isShiftDown()) {
+//                        cameraManager.getXform2().t.setX(cameraManager.getXform2().t.getX() - 
+//                            modifierFactor*modifier*TRACK_SPEED);
+//                    } else {
+//                        cameraManager.getXform().ry.setAngle(cameraManager.getXform().ry.getAngle() - 
+//                                modifierFactor*modifier*ROTATION_SPEED );
+//                    }
+//                    break;
+//                case RIGHT:
+//                    if(event.isShiftDown()) {
+//                        cameraManager.getXform2().t.setX(cameraManager.getXform2().t.getX() +
+//                            modifierFactor*modifier*TRACK_SPEED);
+//                    } else {
+//                        cameraManager.getXform().ry.setAngle(cameraManager.getXform().ry.getAngle() +
+//                                modifierFactor*modifier*ROTATION_SPEED );
+//                    }
+//                    break;
+//                case SPACE: // Reset Angle
+//                    cameraManager.reset();
+//                    break;
+//                case COMMA:
+//                    double z = cameraManager.getCamera().getTranslateZ();
+//                    double newZ = z + modifierFactor*modifier;
+//                    cameraManager.getCamera().setTranslateZ(newZ);
+//                    break;
+//                case PERIOD:
+//                    z = cameraManager.getCamera().getTranslateZ();
+//                    newZ = z - modifierFactor*modifier;
+//                    cameraManager.getCamera().setTranslateZ(newZ);
+//                    break;
+//                case L:
+//                    handleDrawModeToggle();
+//                    break;
+//            } // switch
+//        });
+//    }  //  handleKeyboard()
 
     @FXML
     private void handleResetButtonAction(ActionEvent event) {
         System.out.println("Clicked ResetButton!");
-        cameraManager.getXform2().t.setX(0.0);
-        cameraManager.getXform2().t.setY(0.0);
+//        cameraManager.getXform2().t.setX(0.0);
+//        cameraManager.getXform2().t.setY(0.0);
         cameraManager.getXform().ry.setAngle(CameraManager.CAMERA_INITIAL_Y_ANGLE);
         cameraManager.getXform().rx.setAngle(CameraManager.CAMERA_INITIAL_X_ANGLE);
     }
@@ -333,7 +333,7 @@ public class MainControllerSaved {
         Group group = new Group();
         group.getChildren().add(subScene);
         
-        handleKeyboard(drawPane.getParent(), root);
+//        handleKeyboard(drawPane.getParent(), root);
         handleMouse(drawPane, root);
         
         drawPane.getChildren().add(group);

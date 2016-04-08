@@ -155,6 +155,8 @@ public class RenderPart {
 //		return arg0.getZIndex() - getZIndex();
 //	}
         
+        
+        //TODO: Do we need the 0.5f or should we align on integers?
         private void initPart() {
             points.clear();
             textureCoordinates.clear();

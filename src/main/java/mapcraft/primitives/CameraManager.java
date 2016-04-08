@@ -19,8 +19,6 @@ public class CameraManager {
     
     private final Sphere sphere = new Sphere(0.5);
     private final Xform cameraXform = new Xform(); // Rotate
-    private final Xform cameraXform2 = new Xform(); // Translate X and Y
-    private final Xform cameraXform3 = new Xform(); // Rotate Z
     private final Frustum frustum = new PlanarFrustum();
 
     public static final double CAMERA_INITIAL_DISTANCE = -20;
@@ -31,11 +29,9 @@ public class CameraManager {
         
     public void init() {
         /* Sphere needs to be one level higher */
-        cameraXform.getChildren().add(cameraXform2);
+        cameraXform.getChildren().add(camera);
         cameraXform.getChildren().add(sphere);
-        cameraXform2.getChildren().add(cameraXform3);
-        cameraXform3.getChildren().add(camera);
-        cameraXform3.setRotateZ(180.0);
+        cameraXform.setRotateZ(180.0);
  
         camera.setNearClip(CAMERA_NEAR_CLIP);
         camera.setFarClip(CAMERA_FAR_CLIP);
@@ -56,14 +52,6 @@ public class CameraManager {
     public Xform getXform(){
         return cameraXform;
     }
-
-    public Xform getXform2(){
-        return cameraXform2;
-    }
-
-    public Xform getXform3(){
-        return cameraXform3;
-    }
     
     public void update() {
         frustum.update(camera);
@@ -78,10 +66,11 @@ public class CameraManager {
     }
     
     public void reset() {
-        cameraXform2.t.setX(0.0);
-        cameraXform2.t.setY(0.0);
         cameraXform.ry.setAngle(CAMERA_INITIAL_Y_ANGLE);
         cameraXform.rx.setAngle(CAMERA_INITIAL_X_ANGLE);
+        cameraXform.t.setX(0.0);
+        cameraXform.t.setY(0.0);
+        cameraXform.setRotateZ(180.0);
     }
     
 }
