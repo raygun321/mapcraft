@@ -11,7 +11,7 @@ package mapcraft.block;
  */
 public class Block {
 
-    static final int BLOCK_RENDER_SIZE = 1;
+    public static final int BLOCK_RENDER_SIZE = 1;
     private BlockType type;
     private boolean active;
     private int blockID;

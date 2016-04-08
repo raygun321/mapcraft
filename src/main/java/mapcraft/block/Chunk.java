@@ -9,12 +9,17 @@ import java.util.HashMap;
 import java.util.Map;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.paint.Material;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
 import mapcraft.map.World;
+import org.mapcraft.api.block.BlockFace;
+import org.mapcraft.api.gui.render.ImmutableFace;
+import org.mapcraft.api.gui.render.RenderPart;
+import org.mapcraft.api.material.BlockMaterial;
 import org.mapcraft.api.math.BitSize;
 
 /**
@@ -101,6 +106,8 @@ public class Chunk {
         isSetup = true;
     }
 
+    //TODO: Need to move this to a world generator or the chunk loader.
+    //      Chunk shouldn't know how to load itself
     public void load() {
         System.out.println("Chunk load at " + position);
         World world = manager.getWorld();
@@ -182,6 +189,7 @@ public class Chunk {
         }
     }
     
+    //TODO: Needs to move to material
     private int getTextureCoordFromBlockType(BlockType type) {
         switch(type) {
             case Grass:
@@ -201,26 +209,7 @@ public class Chunk {
         return 1;
     }
     
-    private BlockType getRandomBlockType() {
-        int type = new Double( Math.random() * 6 ).intValue();
-        switch(type) {
-            case 2:
-                return BlockType.Grass;
-            case 1:
-                return BlockType.Dirt;
-            case 5:
-                return BlockType.Water;
-            case 0:
-                return BlockType.Stone;
-            case 3:
-                return BlockType.Wood;
-            case 4:
-                return BlockType.Sand;
-        }
-        
-        return BlockType.Default;
-    }
-    
+    //TODO: Needs to move to world generator
     private BlockType getBlockTypeBasedOnHeight(double height) {
         BlockType result = BlockType.Stone;
 
@@ -233,21 +222,20 @@ public class Chunk {
 
         return result;
     }
-        
+    
+    /*TODO: Extract logic into a Mesher
+        RenderPart is a rectangle.
+        Blocks have a BlockMaterial
+        BlockMaterials have RenderParts.
+        Mesher takes BlockMaterials and composes the Mesh
+       
+     */   
     public void rebuildMesh() {
         // Create the mesh...
         TriangleMesh mesh = (TriangleMesh) meshView.getMesh();
         mesh.getFaces().clear();
         mesh.getTexCoords().clear();
         mesh.getPoints().clear();
-        
-        // Using the same set for all
-        mesh.getTexCoords().addAll(0.1f, 0.5f, // 0 red
-                                   0.3f, 0.5f, // 1 green
-                                   0.5f, 0.5f, // 2 blue
-                                   0.7f, 0.5f, // 3 yellow
-                                   0.9f, 0.5f  // 4 orange
-                                   );
 
         Integer faceCount = 0;
         for(int x = 0; x < CHUNK_SIZE; x++) {
@@ -382,9 +370,8 @@ public class Chunk {
                         
                         if(!(xNeg && xPos && yNeg && yPos && zNeg && zPos)) {
                             // Only create mesh for visible active blocks
-                            int textureCoord = getTextureCoordFromBlockType(curBlock.getBlockType());
                             faceMap.put(faceCount, curBlock);
-                            faceCount += AddCubeToMesh(mesh, x, y, z, textureCoord, xNeg, xPos, yNeg, yPos, zNeg, zPos);
+                            faceCount += AddCubeToMesh(mesh, x, y, z, curBlock.getBlockType(), xNeg, xPos, yNeg, yPos, zNeg, zPos);
 
                             activeBlockCount++;
                         }
@@ -395,70 +382,43 @@ public class Chunk {
         shouldRender = activeBlockCount > 0;
     }
     
-    private int AddCubeToMesh(TriangleMesh mesh, int x, int y, int z, int tc,
+    //TODO: Extract logic into a Mesher
+    private int AddCubeToMesh(TriangleMesh mesh, int x, int y, int z, BlockType type,
             boolean xNeg, boolean xPos, boolean yNeg, boolean yPos, boolean zNeg, boolean zPos) {
+        int tc = getTextureCoordFromBlockType(type);
         int numFaces =0;
-        int numPts = mesh.getPoints().size() / mesh.getPointElementSize();
         
-        mesh.getPoints().addAll(x-RENDER_SIZE, y-RENDER_SIZE, z+RENDER_SIZE,    //0 Left,  Top,    Back
-                                x+RENDER_SIZE, y-RENDER_SIZE, z+RENDER_SIZE,    //1 Right, Top,    Back
-                                x+RENDER_SIZE, y+RENDER_SIZE, z+RENDER_SIZE,    //2 Right, Bottom, Back
-                                x-RENDER_SIZE, y+RENDER_SIZE, z+RENDER_SIZE,    //3 Left,  Bottom, Back
-                                x+RENDER_SIZE, y-RENDER_SIZE, z-RENDER_SIZE,    //4 Right, Top,    Front
-                                x-RENDER_SIZE, y-RENDER_SIZE, z-RENDER_SIZE,    //5 Left,  Top,    Front         
-                                x-RENDER_SIZE, y+RENDER_SIZE, z-RENDER_SIZE,    //6 Left,  Bottom, Front
-                                x+RENDER_SIZE, y+RENDER_SIZE, z-RENDER_SIZE);   //7 Right, Bottom, Front
-        
-//    
-//      0    1
-//    5    4
-//      
-//      3    2
-//    6    7
+        boolean[] shouldRenderFace = new boolean[6];
+        shouldRenderFace[0] = !yPos;
+        shouldRenderFace[1] = !xNeg;
+        shouldRenderFace[2] = !zNeg;
+        shouldRenderFace[3] = !xPos;
+        shouldRenderFace[4] = !zPos;
+        shouldRenderFace[5] = !yNeg;
+    
+        BlockMaterial mat = manager.getMaterialManager().getMaterialForType(type);
+        for(int i=0; i< 6; i++) {
+            if(shouldRenderFace[i]) {
+                int baseTc = mesh.getTexCoords().size() / mesh.getTexCoordElementSize();
+                int basePts = mesh.getPoints().size() / mesh.getPointElementSize();
+                RenderPart part = mat.getRenderPartForFace(BlockFace.getFaceByInt(i));
+                for(Point2D point : part.getTextureCoordinates()) {
+                    mesh.getTexCoords().addAll((float) point.getX(), (float) point.getY());
+                }
 
-        if(!yNeg) {
-            mesh.getFaces().addAll(0+numPts,tc, 4+numPts,tc, 1+numPts,tc);   // Top
-            mesh.getFaces().addAll(0+numPts,tc, 5+numPts,tc, 4+numPts,tc);
-            numFaces += 2;
+                for(Point3D point : part.getPoints()) {
+                    mesh.getPoints().addAll((float)(x+point.getX()), (float)(y+point.getY()), (float)(z+point.getZ()));
+                }
+                
+                for(ImmutableFace face : part.getFaces()) {
+                    mesh.getFaces().addAll(face.getVertexIndex(0)+basePts, face.getTextureIndex(0)+baseTc, 
+                            face.getVertexIndex(1)+basePts, face.getTextureIndex(1)+baseTc, 
+                            face.getVertexIndex(2)+basePts, face.getTextureIndex(2)+baseTc);
+                    numFaces++;
+                }
+            }
         }
-        if(!zNeg) {
-            mesh.getFaces().addAll(4+numPts,tc, 5+numPts,tc, 6+numPts,tc);   // Front
-            mesh.getFaces().addAll(4+numPts,tc, 6+numPts,tc, 7+numPts,tc);
-            numFaces += 2;
-        }
-        if(!xPos) {
-            mesh.getFaces().addAll(1+numPts,tc, 4+numPts,tc, 7+numPts,tc);   // Right
-            mesh.getFaces().addAll(1+numPts,tc, 7+numPts,tc, 2+numPts,tc);
-            numFaces += 2;
-        }
-        if(!zPos) {
-            mesh.getFaces().addAll(1+numPts,tc, 3+numPts,tc, 0+numPts,tc);   // Back
-            mesh.getFaces().addAll(1+numPts,tc, 2+numPts,tc, 3+numPts,tc);
-            numFaces += 2;
-        }
-        if(!xNeg) {
-            mesh.getFaces().addAll(5+numPts,tc, 0+numPts,tc, 3+numPts,tc);   // Left
-            mesh.getFaces().addAll(5+numPts,tc, 3+numPts,tc, 6+numPts,tc);
-            numFaces += 2;
-        }
-        if(!yPos) {
-            mesh.getFaces().addAll(6+numPts,tc, 3+numPts,tc, 2+numPts,tc);   // Bottom
-            mesh.getFaces().addAll(6+numPts,tc, 2+numPts,tc, 7+numPts,tc);
-            numFaces += 2;
-        }
-        
-//        mesh.getFaces().addAll(0+numPts,tc, 4+numPts,tc, 1+numPts,tc,   // Top
-//                               0+numPts,tc, 5+numPts,tc, 4+numPts,tc,
-//                               4+numPts,tc, 5+numPts,tc, 6+numPts,tc,   // Front
-//                               4+numPts,tc, 6+numPts,tc, 7+numPts,tc,
-//                               1+numPts,tc, 4+numPts,tc, 7+numPts,tc,   // Right
-//                               1+numPts,tc, 7+numPts,tc, 2+numPts,tc,
-//                               1+numPts,tc, 3+numPts,tc, 0+numPts,tc,   // Back
-//                               1+numPts,tc, 2+numPts,tc, 3+numPts,tc,
-//                               5+numPts,tc, 0+numPts,tc, 3+numPts,tc,   // Left
-//                               5+numPts,tc, 3+numPts,tc, 6+numPts,tc,
-//                               6+numPts,tc, 3+numPts,tc, 2+numPts,tc,   // Bottom
-//                               6+numPts,tc, 2+numPts,tc, 7+numPts,tc);
+
         return numFaces;
     }
 

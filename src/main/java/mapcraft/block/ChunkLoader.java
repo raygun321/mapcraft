@@ -8,7 +8,8 @@ package mapcraft.block;
 import javafx.geometry.Point3D;
 
 /**
- *
+ * The chunk loader creates chunks.
+ * 
  * @author rmalot
  */
 public interface ChunkLoader {
