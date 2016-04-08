@@ -6,6 +6,7 @@
 package mapcraft.primitives;
 
 import javafx.geometry.Bounds;
+import javafx.geometry.Point3D;
 import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.shape.Sphere;
@@ -21,7 +22,7 @@ public class CameraManager {
     private final Xform cameraXform = new Xform(); // Rotate
     private final Frustum frustum = new PlanarFrustum();
 
-    public static final double CAMERA_INITIAL_DISTANCE = -20;
+    public static final double CAMERA_INITIAL_DISTANCE = 0.0;
     public static final double CAMERA_INITIAL_X_ANGLE = 10.0;
     public static final double CAMERA_INITIAL_Y_ANGLE = 0.0;
     public static final double CAMERA_NEAR_CLIP = 0.1;
@@ -71,6 +72,10 @@ public class CameraManager {
         cameraXform.t.setX(0.0);
         cameraXform.t.setY(0.0);
         cameraXform.setRotateZ(180.0);
+    }
+    
+    public Point3D getCameraOriginToScene() {
+        return cameraXform.localToScene(Point3D.ZERO);
     }
     
 }
