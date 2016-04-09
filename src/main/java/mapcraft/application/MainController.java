@@ -108,14 +108,14 @@ public class MainController {
             mouseDeltaX = (mousePosX - mouseOldX); 
             mouseDeltaY = (mousePosY - mouseOldY);
 
-            double modifier = 1.0;
+            double modifier = 0.5;
 
             if (event.isPrimaryButtonDown()) {
-                cameraManager.getXform().ry.setAngle(cameraManager.getXform().ry.getAngle() -
+                cameraManager.getXform().ry.setAngle(cameraManager.getXform().ry.getAngle() +
                    mouseDeltaX*modifierFactor*modifier*ROTATION_SPEED);
                 
                 //Constrain X rotation to be upright.
-                double newValue = cameraManager.getXform().rx.getAngle() +
+                double newValue = cameraManager.getXform().rx.getAngle() -
                    mouseDeltaY*modifierFactor*modifier*ROTATION_SPEED;
                 if(newValue > 90.0) newValue = 90.0;
                 else if(newValue < -90.0) newValue = -90.0;
@@ -127,10 +127,11 @@ public class MainController {
     }
     
     private void handleKeyboard(Node scene, final Node root) {
+        
         scene.setOnKeyPressed((event) -> {
 //            System.out.println("Key Pressed!");
             
-            Double modifier = 1.0;
+            Double modifier = 4.0;
             if (event.isMetaDown()) {
                 modifier = 0.1;
             }

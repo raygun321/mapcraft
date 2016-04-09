@@ -16,6 +16,7 @@ import javafx.scene.Node;
 import javafx.scene.shape.DrawMode;
 import mapcraft.map.World;
 import mapcraft.primitives.CameraManager;
+import org.apache.commons.collections4.CollectionUtils;
 import org.mapcraft.api.material.BlockMaterialManager;
 
 /**
@@ -30,13 +31,13 @@ public class ChunkManager {
     private static final int ASYNC_NUM_CHUNKS_PER_FRAME = 10;
     
     // Lots of list of chunks
+    private final List<Chunk> chunkWorkList;          // Working List of chunks
     private final List<Chunk> chunkLoadList;          // List of chunks to load - cleared in load phase and populated in visibility phase
     private final List<Chunk> chunkSetupList;         // List of chunks to setup - cleared in setup phase
     private final List<Chunk> chunkRebuildList;       // List of chunks to rebuild - cleared in rebuild phase
     private final List<Chunk> chunkUpdateFlagsList;   // List of chunks to update flags - populated in rebuild phase
     private final List<Chunk> chunkUnloadList;        // List of chunks to upload - cleared in unload phase
     private final List<Chunk> chunkVisibilityList;    // List of chunks that can be seen
-    private final List<Chunk> chunkTempVisibilityList;    // List of chunks that can be seen
     private final List<Chunk> chunkRenderList;        // List of chunks to render - cleared in render phase
     private final Map<Node, Chunk> chunkNodeMap;      // Map of chunks addressable by their meshView nodes.
    
@@ -59,7 +60,7 @@ public class ChunkManager {
         chunkUpdateFlagsList = new ArrayList<>();
         chunkUnloadList = new ArrayList<>();
         chunkVisibilityList = new ArrayList<>();
-        chunkTempVisibilityList = new ArrayList<>();
+        chunkWorkList = new ArrayList<>();
         chunkRenderList = new ArrayList<>();
         chunkNodeMap = new HashMap<>();
         
@@ -67,7 +68,7 @@ public class ChunkManager {
         loader = new TextureChunkLoader();
         this.scene = scene;
         
-        forceVisibilityUpdate = false;
+        forceVisibilityUpdate = true;
         cameraPosition = Point3D.ZERO;
         cameraView = Point3D.ZERO;
         
@@ -77,15 +78,18 @@ public class ChunkManager {
 //        world = new World(1000000L);
         materialManager = new BlockMaterialManager();
     }
-        
+    
+    
+    // Should the chunk manager be doing this? or should it be factored somewhere else
     public void update(CameraManager cameraManager) {
-        Point3D centerOfView = cameraManager.getRoot().localToScene(Point3D.ZERO);
+        Point3D centerOfView = cameraManager.getCameraOriginToScene();
         
-        // If camera is underground - move it up
+        // If camera is underground - shift it up slightly
         Double yVal = world.getValue(centerOfView.getX(), centerOfView.getZ());
         if(centerOfView.getY() < yVal) {
             double y = cameraManager.getRoot().getTranslateY();
-            y += yVal - centerOfView.getY() + 2.0;
+            y += yVal - centerOfView.getY() + 0.5;
+            cameraManager.getRoot().setTranslateY(y);
         }
 
         Camera camera = cameraManager.getCamera();
@@ -131,6 +135,7 @@ public class ChunkManager {
      */
     private void updateLoadList() {
         int numberOfChunksLoaded = 0;
+        chunkWorkList.clear();
         
         for(Chunk currentChunk : chunkLoadList) {
             if(numberOfChunksLoaded == ASYNC_NUM_CHUNKS_PER_FRAME) {
@@ -145,16 +150,18 @@ public class ChunkManager {
                 
                 System.out.println("updateLoadList current Position: " + currentChunk.getPosition());
                 
+                // Need to rebuild the meshes on chunks around this one since it is now loaded.
                 for(Chunk nextChunk : getChunksAroundPoint(currentChunk.getPosition(), 1)) {
                     if(nextChunk != null && nextChunk.isLoaded() && nextChunk.isSetup() ) {
                         chunkRebuildList.add(nextChunk);
                     }
                 }
             }
+            chunkWorkList.add(currentChunk);
         }
 
         // Clear the load list (every frame)
-        chunkLoadList.clear();
+        chunkLoadList.removeAll(chunkWorkList);
     }
     
     private void updateSetupList() {
@@ -178,6 +185,7 @@ public class ChunkManager {
     private void updateRebuildList() {
         // Rebuild any chunks that are in the rebuild chunk list
         int numberChunksRebuiltThisFrame = 0;
+        chunkWorkList.clear();
         
         for(Chunk currentChunk : chunkRebuildList) {
             if(numberChunksRebuiltThisFrame == ASYNC_NUM_CHUNKS_PER_FRAME) {
@@ -202,10 +210,11 @@ public class ChunkManager {
                 numberChunksRebuiltThisFrame++;
                 forceVisibilityUpdate = true;
             }
+            chunkWorkList.add(currentChunk);
         }
         
         // Clear the rebuild list
-        chunkRebuildList.clear();
+        chunkRebuildList.removeAll(chunkWorkList);
     }             
 
     private void updateFlagsList() {
@@ -247,137 +256,51 @@ public class ChunkManager {
      * load,setup,rebuild and render.
      */
     private void updateVisibilityList(Point3D newCameraPosition) {
-        double threshold = 10*Chunk.CHUNK_SIZE;
-        Chunk theChunk;
-        Point3D thePoint;
-
-        chunkUnloadList.addAll(chunkVisibilityList);
-        chunkTempVisibilityList.clear();
-        for(int x = -4; x < 5; x++) {
-            for(int y = -2; y < 2; y++) {
-                for(int z = -4; z < 5; z++) {
-                    thePoint = new Point3D(x*16, y*16, z*16);
-                    theChunk = getChunkAtPoint(thePoint);
-                    // If we have the chunk - don't remove it.
-                    if(theChunk != null) {
-                        chunkUnloadList.remove(theChunk);
-                    }
-
-                    // Is chunk isn't recognized ... we will need to load it.
-                    if(theChunk == null || !theChunk.isLoaded()) {
-                        System.out.println("Geting chunk at " + thePoint);
-                        theChunk = loader.getChunkByLocation(thePoint);
-                        theChunk.setManager(this);
-                        chunkVisibilityList.add(theChunk);
-                    }
-                    chunkTempVisibilityList.add(theChunk);
-                }
+        int visibilityRadius = 8;
+        double threshold = visibilityRadius * Chunk.CHUNK_SIZE;
+//        Chunk theChunk;
+//        Point3D thePoint;
+        
+        System.out.println("updateVisibilityList current Position: " + newCameraPosition);
+        
+        // Only update visibility list if forced ... or if we cross a boundary.
+        if(!forceVisibilityUpdate) {
+            // Check to see if boundary was crossed.
+            long current_id = getChunkId(cameraPosition);
+            long new_id = getChunkId(newCameraPosition);
+            if(current_id != new_id) {
+                // Might change this later
+                forceVisibilityUpdate = true;
             }
         }
         
-        chunkUnloadList.addAll(chunkVisibilityList);
-        chunkUnloadList.removeAll(chunkTempVisibilityList);
-        chunkTempVisibilityList.clear();
-        
-//        chunkVisibilityList.clear();
-//        Chunk tempChunk;
-//        Point3D thePoint;
-//        
-//        for(int x = -4; x < 5; x++) {
-//            for(int y = -2; y < 2; y++) {
-//                for(int z = -4; z < 5; z++) {
-//                    thePoint = new Point3D(x*16, y*16, z*16);
-//                    System.out.println("Geting chunk at " + thePoint);
-//                    tempChunk = loader.getChunkByLocation(thePoint);
-//                    tempChunk.setManager(this);
-//                    chunkVisibilityList.add(tempChunk);
-//                }
-//            }
-//        }
-        
-        chunkNodeMap.clear();
-        for(Chunk chunk : chunkVisibilityList) {
-            if(chunk.shouldRender())
-                chunkNodeMap.put(chunk.getMeshView(), chunk);
+        if(forceVisibilityUpdate) {
+            // Get nearby chunks
+            chunkWorkList.clear();
+            chunkWorkList.addAll(getChunksAroundPoint(newCameraPosition, visibilityRadius) );
+
+            // Add those nearby chunks that are no longer in the visibility list to the unload list
+            chunkUnloadList.addAll(CollectionUtils.subtract(chunkVisibilityList, chunkWorkList));
+
+            System.out.println("forceVisibilityUpdate");
+            System.out.println("chunkVisibilityList size:" + chunkVisibilityList.size() ); 
+            System.out.println("getChunksAroundPoint size:" + chunkWorkList.size() ); 
+            System.out.println("chunkUnloadList size:" + chunkUnloadList.size() ); 
+
+            // Add in chunks ... making sure to let the chunks know this is the manager
+            chunkVisibilityList.clear();
+            chunkNodeMap.clear();
+            for(Chunk currentChunk : chunkWorkList) {
+                chunkVisibilityList.add(currentChunk);
+                if (!currentChunk.isLoaded()) {
+                    currentChunk.setManager(this);
+                    
+                }
+                if(currentChunk.shouldRender()) {
+                    chunkNodeMap.put(currentChunk.getMeshView(), currentChunk);
+                }
+            }
         }
-        
-//        // Only update visibility list if forced ... or if we cross a boundary.
-//        if(!forceVisibilityUpdate) {
-//            // Check to see if boundary was crossed.
-//            long current_id = getChunkId(cameraPosition);
-//            long new_id = getChunkId(newCameraPosition);
-//            if(current_id != new_id) {
-//                // Might change this later
-//                forceVisibilityUpdate = true;
-//            }
-//        }
-//        if(forceVisibilityUpdate) {
-//            // Remove the chunks that are too far away
-//            for(Chunk currentChunk : chunkVisibilityList) {
-//                if(currentChunk.getPosition().distance(newCameraPosition) > threshold) {
-//                    chunkUnloadList.add(currentChunk);
-//                }
-//            }
-//            chunkVisibilityList.removeAll(chunkUnloadList);
-//
-//            // Add in chunks
-//            // TODO: Don't clear unless forced
-//            chunkVisibilityList.clear();
-//            for(int x = 0; x < 10*Chunk.CHUNK_SIZE; x = x + Chunk.CHUNK_SIZE) {
-//                for(int y = 0; y < 10*Chunk.CHUNK_SIZE; y = y + Chunk.CHUNK_SIZE) {
-//                    for(int z = 0; z < 10*Chunk.CHUNK_SIZE; z = z + Chunk.CHUNK_SIZE) {
-//                        Chunk tempChunk;
-//                        Point3D thePoint = new Point3D(newCameraPosition.getX()+x, newCameraPosition.getY()+y, newCameraPosition.getZ()+z);
-//                        System.out.println("Geting chunk at [" + thePoint.getX() + "," + thePoint.getY() + "," + thePoint.getZ() + "]");
-//                        tempChunk = loader.getChunkByLocation(thePoint);
-//                        tempChunk.setManager(this);
-//                        chunkVisibilityList.add(tempChunk);
-//                        
-//                        if(x>0) {
-//                            thePoint = new Point3D(newCameraPosition.getX()-x, newCameraPosition.getY()+y, newCameraPosition.getZ()+z);
-//                            tempChunk = loader.getChunkByLocation(thePoint);
-//                            tempChunk.setManager(this);
-//                            chunkVisibilityList.add(tempChunk);
-//                            if(y>0) {
-//                                thePoint = new Point3D(newCameraPosition.getX()-x, newCameraPosition.getY()-y, newCameraPosition.getZ()+z);
-//                                tempChunk = loader.getChunkByLocation(thePoint);
-//                                tempChunk.setManager(this);
-//                                chunkVisibilityList.add(tempChunk);
-//                                if(z>0) {
-//                                    thePoint = new Point3D(newCameraPosition.getX()-x, newCameraPosition.getY()-y, newCameraPosition.getZ()-z);
-//                                    tempChunk = loader.getChunkByLocation(thePoint);
-//                                    tempChunk.setManager(this);
-//                                    chunkVisibilityList.add(tempChunk);
-//                                }
-//                            } else if(z>0) {
-//                                thePoint = new Point3D(newCameraPosition.getX()-x, newCameraPosition.getY()+y, newCameraPosition.getZ()-z);
-//                                tempChunk = loader.getChunkByLocation(thePoint);
-//                                tempChunk.setManager(this);
-//                                chunkVisibilityList.add(tempChunk);
-//                            }
-//                        }
-//                        if(y>0) {
-//                            thePoint = new Point3D(newCameraPosition.getX()+x, newCameraPosition.getY()-y, newCameraPosition.getZ()+z);
-//                            tempChunk = loader.getChunkByLocation(thePoint);
-//                            tempChunk.setManager(this);
-//                            chunkVisibilityList.add(tempChunk);
-//                            if(z>0) {
-//                                thePoint = new Point3D(newCameraPosition.getX()+x, newCameraPosition.getY()-y, newCameraPosition.getZ()-z);
-//                                tempChunk = loader.getChunkByLocation(thePoint);
-//                                tempChunk.setManager(this);
-//                                chunkVisibilityList.add(tempChunk);
-//                            }
-//                        }
-//                        if(z>0) {
-//                            thePoint = new Point3D(newCameraPosition.getX()+x, newCameraPosition.getY()+y, newCameraPosition.getZ()-z);
-//                            tempChunk = loader.getChunkByLocation(thePoint);
-//                            tempChunk.setManager(this);
-//                            chunkVisibilityList.add(tempChunk);
-//                        }
-//                    }
-//                }
-//            }            
-//        }
     }
     
     private void updateRenderList(CameraManager cameraManager){
@@ -466,9 +389,9 @@ public class ChunkManager {
         return world;
     }
     
-    public List<Chunk> getChunksAroundPoint(Point3D point, int radius) {
+    public List<Chunk> getChunksAroundPoint(Point3D point, int radiusInChunkSize) {
         List<Chunk> chunkList = new ArrayList<>();
-        int chunkRadius = radius * Chunk.CHUNK_SIZE;
+        int chunkRadius = radiusInChunkSize * Chunk.CHUNK_SIZE;
         double sqRadius = chunkRadius * chunkRadius;
         
         for(double x = point.getX() - chunkRadius; 
