@@ -16,6 +16,7 @@ import javafx.scene.Node;
 import javafx.scene.shape.DrawMode;
 import mapcraft.map.World;
 import mapcraft.primitives.CameraManager;
+import org.apache.commons.collections4.CollectionUtils;
 import org.mapcraft.api.material.BlockMaterialManager;
 
 /**
@@ -30,13 +31,13 @@ public class ChunkManager {
     private static final int ASYNC_NUM_CHUNKS_PER_FRAME = 10;
     
     // Lots of list of chunks
+    private final List<Chunk> chunkWorkList;          // Working List of chunks
     private final List<Chunk> chunkLoadList;          // List of chunks to load - cleared in load phase and populated in visibility phase
     private final List<Chunk> chunkSetupList;         // List of chunks to setup - cleared in setup phase
     private final List<Chunk> chunkRebuildList;       // List of chunks to rebuild - cleared in rebuild phase
     private final List<Chunk> chunkUpdateFlagsList;   // List of chunks to update flags - populated in rebuild phase
     private final List<Chunk> chunkUnloadList;        // List of chunks to upload - cleared in unload phase
     private final List<Chunk> chunkVisibilityList;    // List of chunks that can be seen
-    private final List<Chunk> chunkTempVisibilityList;    // List of chunks that can be seen
     private final List<Chunk> chunkRenderList;        // List of chunks to render - cleared in render phase
     private final Map<Node, Chunk> chunkNodeMap;      // Map of chunks addressable by their meshView nodes.
    
@@ -59,7 +60,7 @@ public class ChunkManager {
         chunkUpdateFlagsList = new ArrayList<>();
         chunkUnloadList = new ArrayList<>();
         chunkVisibilityList = new ArrayList<>();
-        chunkTempVisibilityList = new ArrayList<>();
+        chunkWorkList = new ArrayList<>();
         chunkRenderList = new ArrayList<>();
         chunkNodeMap = new HashMap<>();
         
@@ -134,6 +135,7 @@ public class ChunkManager {
      */
     private void updateLoadList() {
         int numberOfChunksLoaded = 0;
+        chunkWorkList.clear();
         
         for(Chunk currentChunk : chunkLoadList) {
             if(numberOfChunksLoaded == ASYNC_NUM_CHUNKS_PER_FRAME) {
@@ -155,10 +157,11 @@ public class ChunkManager {
                     }
                 }
             }
+            chunkWorkList.add(currentChunk);
         }
 
         // Clear the load list (every frame)
-        chunkLoadList.clear();
+        chunkLoadList.removeAll(chunkWorkList);
     }
     
     private void updateSetupList() {
@@ -182,6 +185,7 @@ public class ChunkManager {
     private void updateRebuildList() {
         // Rebuild any chunks that are in the rebuild chunk list
         int numberChunksRebuiltThisFrame = 0;
+        chunkWorkList.clear();
         
         for(Chunk currentChunk : chunkRebuildList) {
             if(numberChunksRebuiltThisFrame == ASYNC_NUM_CHUNKS_PER_FRAME) {
@@ -206,10 +210,11 @@ public class ChunkManager {
                 numberChunksRebuiltThisFrame++;
                 forceVisibilityUpdate = true;
             }
+            chunkWorkList.add(currentChunk);
         }
         
         // Clear the rebuild list
-        chunkRebuildList.clear();
+        chunkRebuildList.removeAll(chunkWorkList);
     }             
 
     private void updateFlagsList() {
@@ -251,7 +256,7 @@ public class ChunkManager {
      * load,setup,rebuild and render.
      */
     private void updateVisibilityList(Point3D newCameraPosition) {
-        int visibilityRadius = 4;
+        int visibilityRadius = 8;
         double threshold = visibilityRadius * Chunk.CHUNK_SIZE;
 //        Chunk theChunk;
 //        Point3D thePoint;
@@ -270,22 +275,22 @@ public class ChunkManager {
         }
         
         if(forceVisibilityUpdate) {
-            List<Chunk> chunkTempVisibilityList = getChunksAroundPoint(newCameraPosition, visibilityRadius);
+            // Get nearby chunks
+            chunkWorkList.clear();
+            chunkWorkList.addAll(getChunksAroundPoint(newCameraPosition, visibilityRadius) );
+
+            // Add those nearby chunks that are no longer in the visibility list to the unload list
+            chunkUnloadList.addAll(CollectionUtils.subtract(chunkVisibilityList, chunkWorkList));
+
             System.out.println("forceVisibilityUpdate");
             System.out.println("chunkVisibilityList size:" + chunkVisibilityList.size() ); 
-            System.out.println("getChunksAroundPoint size:" + chunkTempVisibilityList.size() ); 
-            
-            // Remove the chunks that are too far away
-            for(Chunk currentChunk : chunkVisibilityList) {
-                if(currentChunk.getPosition().distance(newCameraPosition) > threshold) {
-                    chunkUnloadList.add(currentChunk);
-                }
-            }
-            
-            // Add in chunks
+            System.out.println("getChunksAroundPoint size:" + chunkWorkList.size() ); 
+            System.out.println("chunkUnloadList size:" + chunkUnloadList.size() ); 
+
+            // Add in chunks ... making sure to let the chunks know this is the manager
             chunkVisibilityList.clear();
             chunkNodeMap.clear();
-            for(Chunk currentChunk : chunkTempVisibilityList) {
+            for(Chunk currentChunk : chunkWorkList) {
                 chunkVisibilityList.add(currentChunk);
                 if (!currentChunk.isLoaded()) {
                     currentChunk.setManager(this);
@@ -295,8 +300,6 @@ public class ChunkManager {
                     chunkNodeMap.put(currentChunk.getMeshView(), currentChunk);
                 }
             }
-
-            
         }
     }
     
