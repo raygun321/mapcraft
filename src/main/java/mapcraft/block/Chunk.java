@@ -15,7 +15,7 @@ import javafx.scene.paint.Material;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
-import mapcraft.map.World;
+import mapcraft.map.SimpleWorld;
 import org.mapcraft.api.block.BlockFace;
 import org.mapcraft.api.gui.render.ImmutableFace;
 import org.mapcraft.api.gui.render.RenderPart;

@@ -5,7 +5,7 @@
  */
 package org.mapcraft.api.geo;
 
-import mapcraft.map.World;
+import mapcraft.map.SimpleWorld;
 
 /**
  *
@@ -17,5 +17,5 @@ public interface WorldSource {
      *
      * @return the World
      */
-    public World getWorld();
+    public SimpleWorld getWorld();
 }

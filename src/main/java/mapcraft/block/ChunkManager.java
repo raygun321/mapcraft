@@ -14,6 +14,8 @@ import javafx.scene.Camera;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.shape.DrawMode;
+import mapcraft.map.DensityWorld;
+import mapcraft.map.SimpleWorld;
 import mapcraft.map.World;
 import mapcraft.primitives.CameraManager;
 import org.apache.commons.collections4.CollectionUtils;
@@ -74,7 +76,7 @@ public class ChunkManager {
         
         drawMode = DrawMode.FILL;
         
-        world = new World(new Double(Math.random()*Long.MAX_VALUE).longValue());
+        world = new DensityWorld(new Double(Math.random()*Long.MAX_VALUE).longValue());
 //        world = new World(1000000L);
         materialManager = new BlockMaterialManager();
     }
@@ -84,13 +86,13 @@ public class ChunkManager {
     public void update(CameraManager cameraManager) {
         Point3D centerOfView = cameraManager.getCameraOriginToScene();
         
-        // If camera is underground - shift it up slightly
-        Double yVal = world.getValue(centerOfView.getX(), centerOfView.getZ());
-        if(centerOfView.getY() < yVal) {
-            double y = cameraManager.getRoot().getTranslateY();
-            y += yVal - centerOfView.getY() + 0.5;
-            cameraManager.getRoot().setTranslateY(y);
-        }
+//        // If camera is underground - shift it up slightly
+//        int yVal = world.getSurfaceHeightAt(centerOfView.getX(), centerOfView.getZ());
+//        if(centerOfView.getY() < yVal) {
+//            double y = cameraManager.getRoot().getTranslateY();
+//            y += yVal - centerOfView.getY() + 0.5;
+//            cameraManager.getRoot().setTranslateY(y);
+//        }
         
         Camera camera = cameraManager.getCamera();
         Point3D camPosition = camera.localToScene(Point3D.ZERO);

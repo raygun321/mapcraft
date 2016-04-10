@@ -12,7 +12,7 @@ import javafx.scene.effect.Light.Point;
 import javafx.scene.layout.Region;
 import mapcraft.block.Block;
 import mapcraft.block.Chunk;
-import mapcraft.map.World;
+import mapcraft.map.SimpleWorld;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.mapcraft.api.MapCraft;
 import org.mapcraft.api.geo.LoadOption;
@@ -23,7 +23,7 @@ import org.mapcraft.api.geo.WorldSource;
  * @author rmalot
  */
 public class WorldPoint3D extends Point3D implements WorldSource {
-	protected final World world;
+	protected final SimpleWorld world;
 	public static final WorldPoint3D INVALID = new WorldPoint3D(null, 0, 0, 0);
 	/**
 	 * Hashcode caching
@@ -36,12 +36,12 @@ public class WorldPoint3D extends Point3D implements WorldSource {
 		world = point.getWorld();
 	}
 
-	public WorldPoint3D(Point3D vector, World w) {
+	public WorldPoint3D(Point3D vector, SimpleWorld w) {
 		super(vector.getX(), vector.getY(), vector.getZ());
 		world = w;
 	}
 
-	public WorldPoint3D(World world, float x, float y, float z) {
+	public WorldPoint3D(SimpleWorld world, float x, float y, float z) {
 		super(x, y, z);
 		this.world = world;
 	}
@@ -242,7 +242,7 @@ public class WorldPoint3D extends Point3D implements WorldSource {
 	 * @return the world
 	 */
 	@Override
-	public World getWorld() {
+	public SimpleWorld getWorld() {
 		return world;
 	}
 
@@ -301,7 +301,7 @@ public class WorldPoint3D extends Point3D implements WorldSource {
 		double y = in.readDouble();
 		double z = in.readDouble();
 		String world = in.readUTF();
-		World w = MapCraft.getEngine().getWorld(world, true);
+		SimpleWorld w = MapCraft.getEngine().getWorld(world, true);
 		try {
 			Field field;
 

@@ -6,7 +6,7 @@
 package org.mapcraft.api.geo;
 
 import javafx.geometry.Point3D;
-import mapcraft.map.World;
+import mapcraft.map.SimpleWorld;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.mapcraft.api.geo.discrete.WorldPoint3D;
 
@@ -62,7 +62,7 @@ public class Cuboid implements WorldSource {
 	}
 
 	@Override
-	public World getWorld() {
+	public SimpleWorld getWorld() {
 		return base.getWorld();
 	}
 

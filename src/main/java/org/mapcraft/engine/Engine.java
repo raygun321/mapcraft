@@ -5,16 +5,16 @@
  */
 package org.mapcraft.engine;
 
-import mapcraft.map.World;
+import mapcraft.map.SimpleWorld;
 
 /**
  *
  * @author rmalot
  */
 public class Engine {
-    private World world;
+    private SimpleWorld world;
     
-    public World getWorld(String world, boolean flag) {
+    public SimpleWorld getWorld(String world, boolean flag) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.        
     }
 }
