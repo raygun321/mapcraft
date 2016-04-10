@@ -11,7 +11,6 @@ import javafx.geometry.Point3D;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Material;
 import javafx.scene.paint.PhongMaterial;
-import org.mapcraft.api.material.BlockMaterialManager;
 
 /**
  *
@@ -19,9 +18,11 @@ import org.mapcraft.api.material.BlockMaterialManager;
  */
 public class TextureChunkLoader implements ChunkLoader {
     Map<Long,Chunk> chunkMap = new HashMap<>();
+    Map<Long,String> chunkMetaMap = new HashMap<>();
     
     Material material;
     
+    //TODO: Need to remove the material
     public TextureChunkLoader() {
         PhongMaterial mat = new PhongMaterial();
         mat.setDiffuseMap(new Image(getClass().getResourceAsStream("/images/terrain.png")));
@@ -42,11 +43,21 @@ public class TextureChunkLoader implements ChunkLoader {
         if(chunkMap.containsKey(id) ) {
             return chunkMap.get(id);
         } else {
+            String meta;
             Chunk thisChunk = new Chunk(ChunkManager.getChunkPosition(id));
             thisChunk.setMaterial(material);
             chunkMap.put(id, thisChunk );
             return thisChunk;
         }
+    }
+
+    @Override
+    public void saveChunk(Chunk theChunk) {
+        String meta = theChunk.getMetadata();
+        Long id = ChunkManager.getChunkId(theChunk.getPosition());
+        
+        chunkMetaMap.put(id, meta);
+        chunkMap.remove(id);
     }
     
     

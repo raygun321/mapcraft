@@ -5,8 +5,10 @@
  */
 package mapcraft.map;
 
+import javafx.geometry.Point3D;
 import javafx.scene.layout.Region;
 import mapcraft.block.Block;
+import mapcraft.block.BlockType;
 import mapcraft.block.Chunk;
 import org.mapcraft.api.geo.LoadOption;
 
@@ -58,7 +60,69 @@ public class World {
     public int getWaterLevel() {
         return waterLevel;
     }
+    
+    public void generateChunk(Chunk theChunk) {
+        Point3D position = theChunk.getPosition();
+        
+        for(int x = 0; x < Chunk.CHUNK_SIZE; x++) {
+            for(int z = 0; z < Chunk.CHUNK_SIZE; z++) {
+                Double yVal = (getValue(x+position.getX(), z+position.getZ())) - position.getY();
+                
+                int yLevel = yVal.intValue();
+                if(yLevel < 0) yLevel = 0;
+                
+                // Below is active
+                for(int y = 0; y < Chunk.CHUNK_SIZE && y < yLevel; y++ ) {
+                    Block tempBlock = new Block(getBlockTypeBasedOnHeight(y + position.getY()));
+                    tempBlock.setActive(true);
+                    theChunk.setBlock(x, y, z, tempBlock);
+                }
+                // If near the waterline - replace the top block with sand.
+                if(yLevel < Chunk.CHUNK_SIZE && yLevel > 0 && 
+                        (yLevel + position.getY()) < (getWaterLevel()+2) && 
+                        (yLevel + position.getY()) > (getWaterLevel()-4)) {
+                    int yLowerLevel = yLevel - 3;
+                    if(yLowerLevel < 0) yLowerLevel = 0;
+                    int yUpperLevel = yLevel;
+                    if(yUpperLevel > Chunk.CHUNK_SIZE) yUpperLevel = Chunk.CHUNK_SIZE;
 
+                    for(int y = yLowerLevel; y < yUpperLevel; y++) {
+                        Block tempBlock = new Block(BlockType.Sand);
+                        tempBlock.setActive(true);
+                        theChunk.setBlock(x, y, z, tempBlock);
+                    }
+                }
+                
+                // Above is not active
+                for(int y = yLevel; y < Chunk.CHUNK_SIZE; y++) {
+                    // Fill with water or air?
+                    if(y + position.getY() < getWaterLevel()) {
+                        Block tempBlock = new Block(BlockType.Water);
+                        tempBlock.setActive(true);
+                        theChunk.setBlock(x, y, z, tempBlock);
+                    } else {
+                        Block tempBlock = new Block(BlockType.Default);
+                        tempBlock.setActive(false);
+                        theChunk.setBlock(x, y, z, tempBlock);
+                    }
+                }
+            }
+        }
+    }
+    
+    private BlockType getBlockTypeBasedOnHeight(double height) {
+        BlockType result = BlockType.Stone;
+
+        if(height > 10.0)
+            result = BlockType.Stone;
+        else if (height > 1.0)
+            result = BlockType.Grass;
+        else if (height > -5)
+            result = BlockType.Dirt;
+
+        return result;
+    }
+    
     public Chunk getChunk(int chunkX, int chunkY, int chunkZ, LoadOption loadopt) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

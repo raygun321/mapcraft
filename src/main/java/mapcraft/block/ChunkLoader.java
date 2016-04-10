@@ -15,4 +15,5 @@ import javafx.geometry.Point3D;
 public interface ChunkLoader {
     public Chunk getChunkByLocation(Point3D position);
     public Chunk getChunkById(long id);
+    public void saveChunk(Chunk theChunk);
 }

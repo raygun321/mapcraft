@@ -203,10 +203,7 @@ public class MainControllerSaved {
     @FXML
     private void handleResetButtonAction(ActionEvent event) {
         System.out.println("Clicked ResetButton!");
-//        cameraManager.getXform2().t.setX(0.0);
-//        cameraManager.getXform2().t.setY(0.0);
-        cameraManager.getXform().ry.setAngle(CameraManager.CAMERA_INITIAL_Y_ANGLE);
-        cameraManager.getXform().rx.setAngle(CameraManager.CAMERA_INITIAL_X_ANGLE);
+        cameraManager.reset();
     }
     
     @FXML

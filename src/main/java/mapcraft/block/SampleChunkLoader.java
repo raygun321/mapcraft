@@ -72,4 +72,9 @@ public class SampleChunkLoader implements ChunkLoader {
             return thisChunk;
         }
     }
+
+    @Override
+    public void saveChunk(Chunk theChunk) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

@@ -36,7 +36,10 @@ public class Chunk {
     private DrawMode drawMode;
     private Material blockMaterial;
     
+    // Should this be static? Are we just going to have one ChunkManager?
     private ChunkManager manager;
+    
+    private String metadata;
     
     /**
      * Position of the min corner (upper left corner, min Z)
@@ -106,56 +109,11 @@ public class Chunk {
         isSetup = true;
     }
 
-    //TODO: Need to move this to a world generator or the chunk loader.
-    //      Chunk shouldn't know how to load itself
     public void load() {
         System.out.println("Chunk load at " + position);
-        World world = manager.getWorld();
-        
-        for(int x = 0; x < CHUNK_SIZE; x++) {
-            for(int z = 0; z < CHUNK_SIZE; z++) {
-                Double yVal = (world.getValue(x+position.getX(), z+position.getZ())) - position.getY();
-                
-                int yLevel = yVal.intValue();
-                if(yLevel < 0) yLevel = 0;
-                
-                // Below is active
-                for(int y = 0; y < CHUNK_SIZE && y < yLevel; y++ ) {
-                    Block tempBlock = new Block(getBlockTypeBasedOnHeight(y + position.getY()));
-                    tempBlock.setActive(true);
-                    blocks[x][y][z] = tempBlock;
-                }
-                // If near the waterline - replace the top block with sand.
-                if(yLevel < CHUNK_SIZE && yLevel > 0 && 
-                        (yLevel + position.getY()) < (world.getWaterLevel()+2) && 
-                        (yLevel + position.getY()) > (world.getWaterLevel()-4)) {
-                    int yLowerLevel = yLevel - 3;
-                    if(yLowerLevel < 0) yLowerLevel = 0;
-                    int yUpperLevel = yLevel;
-                    if(yUpperLevel > CHUNK_SIZE) yUpperLevel = CHUNK_SIZE;
 
-                    for(int y = yLowerLevel; y < yUpperLevel; y++) {
-                        Block tempBlock = new Block(BlockType.Sand);
-                        tempBlock.setActive(true);
-                        blocks[x][y][z] = tempBlock;
-                    }
-                }
-                
-                // Above is not active
-                for(int y = yLevel; y < CHUNK_SIZE; y++) {
-                    // Fill with water or air?
-                    if(y + position.getY() < world.getWaterLevel()) {
-                        Block tempBlock = new Block(BlockType.Water);
-                        tempBlock.setActive(true);
-                        blocks[x][y][z] = tempBlock;
-                    } else {
-                        Block tempBlock = new Block(BlockType.Default);
-                        tempBlock.setActive(false);
-                        blocks[x][y][z] = tempBlock;
-                    }
-                }
-            }
-        }
+        manager.getWorld().generateChunk(this);
+
         isLoaded = true;
     }
     
@@ -207,20 +165,6 @@ public class Chunk {
         }
         
         return 1;
-    }
-    
-    //TODO: Needs to move to world generator
-    private BlockType getBlockTypeBasedOnHeight(double height) {
-        BlockType result = BlockType.Stone;
-
-        if(height > 10.0)
-            result = BlockType.Stone;
-        else if (height > 1.0)
-            result = BlockType.Grass;
-        else if (height > -5)
-            result = BlockType.Dirt;
-
-        return result;
     }
     
     /*TODO: Extract logic into a Mesher
@@ -463,6 +407,10 @@ public class Chunk {
         return blocks[x][y][z];
     }
     
+    public void setBlock(int x, int y, int z, Block theBlock) {
+        blocks[x][y][z] = theBlock;
+    }
+    
     public Block getBlockByFace(int faceNumber) {
         int originalFaceNumber = faceNumber;
         // Faces are added in twos.
@@ -488,4 +436,14 @@ public class Chunk {
         return isInScene;
     }
 
+    public String getMetadata() {
+        return metadata;
+    }
+    
+    public void setMetadata(String metadata) {
+        this.metadata = metadata;
+        
+        //TODO: Deal with change of metadata. Deactivate/Active Nodes. Metadata should be a patch from the generated world.
+    }
+    
 }

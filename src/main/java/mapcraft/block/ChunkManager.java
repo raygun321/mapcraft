@@ -91,7 +91,7 @@ public class ChunkManager {
             y += yVal - centerOfView.getY() + 0.5;
             cameraManager.getRoot().setTranslateY(y);
         }
-
+        
         Camera camera = cameraManager.getCamera();
         Point3D camPosition = camera.localToScene(Point3D.ZERO);
         Point3D camView = camera.localToScene(0.0, 0.0, 1.0);        
@@ -239,6 +239,8 @@ public class ChunkManager {
     private void updateUnloadList() {
         for(Chunk currentChunk : chunkUnloadList) {
             if(currentChunk.isLoaded()) {
+
+                loader.saveChunk(currentChunk);
                 currentChunk.unload();
                 
                 forceVisibilityUpdate = true;
