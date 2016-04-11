@@ -72,10 +72,9 @@ public class DensityWorld implements World {
                     // Subtract the y level... density should increase as you go down and decrease as you go up
                     // Add the water level... This should even out the density to be an average of 0 at sea level.
                     // Add 5 more ... to raise the level to 0.
-                    // Density below 0 should be Air or Water. Denisty above 0 should be various solids.
-                    Double density = (getValue(x+position.getX(), currentLevel, z+position.getZ()) * heightRange) - currentLevel + waterLevel + 5.0;
-                    
-                    BlockType type = getBlockTypeBasedOnDensity(density);
+                    // Density below 0 should be Air or Water. Density above 0 should be various solids.
+                    Double density = (getValue(x+position.getX(), currentLevel, z+position.getZ())) - currentLevel + waterLevel + 5.0;
+                    BlockType type = getBlockTypeBasedOnDensityAndHeight(density, currentLevel);
                     
                     if(type.equals(BlockType.Default) && currentLevel < waterLevel) {
                         type = BlockType.Water;                        
@@ -104,13 +103,18 @@ public class DensityWorld implements World {
         }
     }
     
-    private BlockType getBlockTypeBasedOnDensity(double density) {
+    private BlockType getBlockTypeBasedOnDensityAndHeight(double density, double height) {
         BlockType result = BlockType.Default;
         
         if(density >= 0.0) {
             if(density > 15) result = BlockType.Stone;
-            else if(density > 5) result = BlockType.Dirt;
-            else result = BlockType.Sand;
+            if(density > 6) result = BlockType.Dirt;
+            if(density > 5) result = BlockType.Sand;
+            else result = BlockType.Dirt;
+            
+            if(density < 2 && height < waterLevel + 3.0) {
+                result = BlockType.Sand;
+            }
         }
 
         return result;
@@ -141,7 +145,7 @@ public class DensityWorld implements World {
     public int getSurfaceHeightAt(double x, double z) {
         int surfaceLevel = 0;
         for(int yy = 0; yy < heightRange; yy++) {
-            Double density = getValue(x, yy, z) * heightRange - yy + waterLevel + 5.0;
+            Double density = getValue(x, yy, z) - yy + waterLevel + 5.0;
             if(density >= 0.0)
                 surfaceLevel = yy;
         }

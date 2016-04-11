@@ -68,7 +68,7 @@ public class SimpleNoiseOctave extends SimplexNoise {
         double weightSum = 0;
 
         for (int octave = 0; octave < octaves; octave++) {
-            noiseSum += noise(x * layerFrequency, y * layerFrequency, z * layerFrequency) * layerWeight;
+            noiseSum += noise(x * layerFrequency, y * layerFrequency, z * layerFrequency) * layerWeight; 
             layerFrequency *= 2;
             weightSum += layerWeight;
             layerWeight *= roughness;
